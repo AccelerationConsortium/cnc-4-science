@@ -1,5 +1,7 @@
 <h1> CNC MACHINE CODE </h1>
+
 Authors: Owen Melville, Kelvin Chow
+
 Last Updated: 2025-08-27 
 
 <h2> Overall description </h2>
