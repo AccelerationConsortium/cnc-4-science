@@ -1,6 +1,6 @@
 <h1> CNC MACHINE CODE </h1>
-Owen Melville 2025-08-27 
-Feel free to use this repo without credit
+Authors: Owen Melville, Kelvin Chow
+Last Updated: 2025-08-27 
 
 <h2> Overall description </h2>
 This package can be used to control Genmitsu CNC machines. This is useful for accelerated discovery because you can put your tools onto the CNC machine. All you need is to install the packages in requirements.txt then you can import cnc_machine.py and use its methods to intuitively and seemlessly move the cnc machine with whatever scientific tools you want to incorporate. 
