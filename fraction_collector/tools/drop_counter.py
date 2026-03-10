@@ -19,7 +19,9 @@ class DropCounter:
 
         params = tool_config.get("parameters", {})
         if DripCounter is None:
-            raise ImportError("vernier_drop_counter package is required for DropCounter")
+            raise ImportError(
+                "vernier_drop_counter package is required for DropCounter"
+            )
         if RunzeValve is None:
             raise ImportError("runze_valve package is required for DropCounter")
         self.sensor = DripCounter(sensor_id=params.get("sensor_id", 1))
@@ -49,8 +51,17 @@ class DropCounter:
             count, timeout=timeout, poll_interval=poll_interval
         )
 
-    def collect_fraction(self, x, y, z, drop_count, rinse_drops=20,
-                         timeout=120, poll_interval=20, speed=2500):
+    def collect_fraction(
+        self,
+        x,
+        y,
+        z,
+        drop_count,
+        rinse_drops=20,
+        timeout=120,
+        poll_interval=20,
+        speed=2500,
+    ):
         """Run a full fraction collection cycle at the given position.
 
         1. Move to waste position and rinse collection tubing.

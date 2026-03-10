@@ -1,54 +1,54 @@
 {
-  "tools": [
-    {
-      "toolId": "vial_capper",
-      "displayName": "Vial Capping Presser",
-      "toolType": "presser",
-      "offset": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 0.0
-      },
-      "controlInterface": "gpio",
-      "parameters": {
-        "press_depth_mm": 5.0,
-        "press_speed": 500
-      }
-    },
-    {
-      "toolId": "vacuum_gripper",
-      "displayName": "Vacuum Gripper",
-      "toolType": "gripper",
-      "offset": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 0.0
-      },
-      "controlInterface": "spindle",
-      "parameters": {
-        "spindle_speed_rpm": 1000,
-        "pickup_z_offset_mm": -5.0,
-        "place_z_offset_mm": -3.0
-      }
-    },
-    {
-      "toolId": "drop_counter",
-      "displayName": "Vernier Drop Counter",
-      "toolType": "sensor",
-      "offset": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 0.0
-      },
-      "controlInterface": "serial",
-      "parameters": {
-        "sensor_id": 1,
-        "valve_port": "COM9",
-        "valve_address": 0,
-        "valve_num_ports": 10,
-        "collection_port": 3,
-        "waste_port": 6
-      }
-    }
-  ]
+    "tools": [
+        {
+            "toolId": "vial_capper",
+            "displayName": "Vial Capping Presser",
+            "toolType": "presser",
+            "offset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "controlInterface": "gpio",
+            "parameters": {
+                "press_depth_mm": 5.0,
+                "press_speed": 500
+            }
+        },
+        {
+            "toolId": "vacuum_gripper",
+            "displayName": "Vacuum Gripper",
+            "toolType": "gripper",
+            "offset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "controlInterface": "spindle",
+            "parameters": {
+                "spindle_speed_rpm": 1000,
+                "pickup_z_offset_mm": -5.0,
+                "place_z_offset_mm": -3.0
+            }
+        },
+        {
+            "toolId": "drop_counter",
+            "displayName": "Vernier Drop Counter",
+            "toolType": "sensor",
+            "offset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "controlInterface": "serial",
+            "parameters": {
+                "sensor_id": 1,
+                "valve_port": "COM9",
+                "valve_address": 0,
+                "valve_num_ports": 10,
+                "collection_port": 3,
+                "waste_port": 6
+            }
+        }
+    ]
 }
