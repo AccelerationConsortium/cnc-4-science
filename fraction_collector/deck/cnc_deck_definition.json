@@ -1,0 +1,57 @@
+{
+  "deckId": "cnc_4slot_standard",
+  "schemaVersion": 1,
+  "dimensions": [270.0, 150.0, 0.0],
+  "metadata": {
+    "displayName": "CNC 4-Slot Deck",
+    "description": "2x2 deck layout for Genmitsu CNC gantry system",
+    "tags": ["cnc", "4 slots", "fraction-collector"]
+  },
+  "robot": {
+    "model": "Genmitsu CNC"
+  },
+  "locations": {
+    "slots": [
+      {
+        "id": "1",
+        "displayName": "Slot 1 (front-left)",
+        "position": [0.0, 0.0, 0.0],
+        "boundingBox": {
+          "xDimension": 128.0,
+          "yDimension": 86.0,
+          "zDimension": 0
+        }
+      },
+      {
+        "id": "2",
+        "displayName": "Slot 2 (front-right)",
+        "position": [135.0, 0.0, 0.0],
+        "boundingBox": {
+          "xDimension": 128.0,
+          "yDimension": 86.0,
+          "zDimension": 0
+        }
+      },
+      {
+        "id": "3",
+        "displayName": "Slot 3 (back-left)",
+        "position": [0.0, 90.0, 0.0],
+        "boundingBox": {
+          "xDimension": 128.0,
+          "yDimension": 86.0,
+          "zDimension": 0
+        }
+      },
+      {
+        "id": "4",
+        "displayName": "Slot 4 (back-right)",
+        "position": [135.0, 90.0, 0.0],
+        "boundingBox": {
+          "xDimension": 128.0,
+          "yDimension": 86.0,
+          "zDimension": 0
+        }
+      }
+    ]
+  }
+}
