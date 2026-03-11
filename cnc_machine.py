@@ -1,8 +1,8 @@
-
 import logging
 import serial
 import time
 import yaml
+
 
 class CNC_Machine:
     """
@@ -12,9 +12,20 @@ class CNC_Machine:
       - Structured logging (DEBUG/INFO/WARNING/ERROR)
     """
 
-    def __init__(self, com, baud_rate=115200, x_low_bound=0, x_high_bound=270, 
-                 y_low_bound=0, y_high_bound=150, z_low_bound=-35, z_high_bound=0,
-                 virtual=False, locations_file=None, log_level=logging.INFO,):
+    def __init__(
+        self,
+        com,
+        baud_rate=115200,
+        x_low_bound=0,
+        x_high_bound=280,
+        y_low_bound=0,
+        y_high_bound=180,
+        z_low_bound=-35,
+        z_high_bound=0,
+        virtual=False,
+        locations_file=None,
+        log_level=logging.INFO,
+    ):
         self.logger = logging.getLogger(__name__ + ".CNC_Machine")
         if not self.logger.handlers:
             h = logging.StreamHandler()
@@ -46,7 +57,9 @@ class CNC_Machine:
 
         self.logger.info(
             "CNC_Machine initialized (virtual=%s, port=%s, baud=%s)",
-            self.VIRTUAL, self.SERIAL_PORT, self.BAUD_RATE
+            self.VIRTUAL,
+            self.SERIAL_PORT,
+            self.BAUD_RATE,
         )
 
     def load_from_yaml(self, file_in):
@@ -72,7 +85,9 @@ class CNC_Machine:
         if self.ser and self.ser.is_open:
             self.logger.debug("Serial already open on %s", self.SERIAL_PORT)
             return
-        self.logger.info("Opening serial port %s @ %s baud", self.SERIAL_PORT, self.BAUD_RATE)
+        self.logger.info(
+            "Opening serial port %s @ %s baud", self.SERIAL_PORT, self.BAUD_RATE
+        )
         self.ser = serial.Serial(self.SERIAL_PORT, self.BAUD_RATE)
         self.wake_up()
 
@@ -138,7 +153,9 @@ class CNC_Machine:
             if status.startswith("<Idle"):
                 return
             if (time.time() - t0) > max_s:
-                raise TimeoutError(f"Machine did not become Idle in {max_s}s, last status: {last}")
+                raise TimeoutError(
+                    f"Machine did not become Idle in {max_s}s, last status: {last}"
+                )
             time.sleep(period)
 
     def send_lines(self, lines):
@@ -157,7 +174,9 @@ class CNC_Machine:
                             for tok in line.split():
                                 if tok.startswith(axis):
                                     try:
-                                        self._virtual_pos[axis] = float(tok[len(axis):])
+                                        self._virtual_pos[axis] = float(
+                                            tok[len(axis) :]
+                                        )
                                     except Exception:
                                         pass
             self._virtual_state = "Idle"
@@ -214,7 +233,7 @@ class CNC_Machine:
         self.logger.info("Returning to work origin (0,0,0).")
         self.move_to_point_safe(x=0, y=0, z=0, gtype="G0")
 
-    def home(self, unlock=True, set_wcs_zero=True, park=(0,0,0), rapid=True):
+    def home(self, unlock=True, set_wcs_zero=True, park=(0, 0, 0), rapid=True):
         g = []
         if unlock:
             g.append("$X")
@@ -238,7 +257,7 @@ class CNC_Machine:
     def move_through_points(self, point_list, speed=3000):
         self.logger.info("Moving through %d points at F%d.", len(point_list), speed)
         lines = ["G90"]
-        for (x, y, z) in point_list:
+        for x, y, z in point_list:
             if self.coordinates_within_bounds(x, y, z):
                 lines.append(self.get_gcode_path_to_point(x, y, z, speed, "G1").strip())
             else:
@@ -248,7 +267,9 @@ class CNC_Machine:
     def move_to_point(self, x=None, y=None, z=None, speed=3000, gtype="G1"):
         if self.coordinates_within_bounds(x, y, z):
             gcode = self.get_gcode_path_to_point(x, y, z, speed, gtype)
-            self.logger.info("Move to point: X%s Y%s Z%s @ F%d (%s).", x, y, z, speed, gtype)
+            self.logger.info(
+                "Move to point: X%s Y%s Z%s @ F%d (%s).", x, y, z, speed, gtype
+            )
             return self.follow_gcode_path(gcode)
         else:
             self.logger.warning("Out of bounds: X%s Y%s Z%s", x, y, z)
@@ -269,7 +290,12 @@ class CNC_Machine:
             self.logger.warning("Out of bounds (safe move): X%s Y%s Z%s", x, y, z)
 
     def move_to_location(self, location_name, location_index, safe=True, speed=3000):
-        self.logger.info("Moving to location '%s' index %s (safe=%s).", location_name, location_index, safe)
+        self.logger.info(
+            "Moving to location '%s' index %s (safe=%s).",
+            location_name,
+            location_index,
+            safe,
+        )
         x, y, z = self.get_location_position(location_name, location_index)
         if safe:
             return self.move_to_point_safe(x, y, z, speed=speed)
@@ -280,22 +306,36 @@ class CNC_Machine:
         loc = self.LOCATIONS.get(location_name)
         if not loc:
             raise KeyError(f"Unknown location '{location_name}'")
-        x = loc["x_origin"]; y = loc["y_origin"]; z = loc["z_origin"]
+        x = loc["x_origin"]
+        y = loc["y_origin"]
+        z = loc["z_origin"]
         if location_index is not None and location_index >= 0:
-            nx = int(loc["num_x"]); dx = float(loc["x_offset"])
-            ny = int(loc["num_y"]); dy = float(loc["y_offset"])
+            nx = int(loc["num_x"])
+            dx = float(loc["x_offset"])
+            ny = int(loc["num_y"])
+            dy = float(loc["y_offset"])
             col = location_index % nx
             row = location_index // nx
             x = x + col * dx
             y = y + row * dy
-        self.logger.debug("Resolved location '%s'[%s] -> X%.3f Y%.3f Z%.3f", location_name, location_index, x, y, z)
+        self.logger.debug(
+            "Resolved location '%s'[%s] -> X%.3f Y%.3f Z%.3f",
+            location_name,
+            location_index,
+            x,
+            y,
+            z,
+        )
         return x, y, z
 
     def get_gcode_path_to_point(self, x=None, y=None, z=None, speed=3000, gtype="G1"):
         parts = [gtype]
-        if x is not None: parts.append(f"X{float(x):.3f}")
-        if y is not None: parts.append(f"Y{float(y):.3f}")
-        if z is not None: parts.append(f"Z{float(z):.3f}")
+        if x is not None:
+            parts.append(f"X{float(x):.3f}")
+        if y is not None:
+            parts.append(f"Y{float(y):.3f}")
+        if z is not None:
+            parts.append(f"Z{float(z):.3f}")
         parts.append(f"F{int(speed)}")
         cmd = " ".join(parts) + "\n"
         self.logger.debug("Built move: %s", cmd.strip())
@@ -304,16 +344,23 @@ class CNC_Machine:
     def coordinates_within_bounds(self, x, y, z):
         def ok(val, lo, hi):
             return val is None or (lo <= val <= hi)
+
         inside = (
-            ok(x, self.X_LOW_BOUND, self.X_HIGH_BOUND) and
-            ok(y, self.Y_LOW_BOUND, self.Y_HIGH_BOUND) and
-            ok(z, self.Z_LOW_BOUND, self.Z_HIGH_BOUND)
+            ok(x, self.X_LOW_BOUND, self.X_HIGH_BOUND)
+            and ok(y, self.Y_LOW_BOUND, self.Y_HIGH_BOUND)
+            and ok(z, self.Z_LOW_BOUND, self.Z_HIGH_BOUND)
         )
         if not inside:
             self.logger.debug(
                 "Bounds check failed: X%s[%s..%s] Y%s[%s..%s] Z%s[%s..%s]",
-                x, self.X_LOW_BOUND, self.X_HIGH_BOUND,
-                y, self.Y_LOW_BOUND, self.Y_HIGH_BOUND,
-                z, self.Z_LOW_BOUND, self.Z_HIGH_BOUND,
+                x,
+                self.X_LOW_BOUND,
+                self.X_HIGH_BOUND,
+                y,
+                self.Y_LOW_BOUND,
+                self.Y_HIGH_BOUND,
+                z,
+                self.Z_LOW_BOUND,
+                self.Z_HIGH_BOUND,
             )
         return inside
