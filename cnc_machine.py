@@ -196,6 +196,16 @@ class CNC_Machine:
             self.wait_until_idle()
         return acks
 
+    def spindle_on(self, speed=1000):
+        """Turn on the spindle at the given RPM (M3 Sxxxx)."""
+        self.logger.info("Spindle ON at S%d.", speed)
+        self.follow_gcode_path(f"M3 S{int(speed)}\n")
+
+    def spindle_off(self):
+        """Turn off the spindle (M5)."""
+        self.logger.info("Spindle OFF.")
+        self.follow_gcode_path("M5\n")
+
     def set_safe_modes(self):
         self.logger.info("Setting safe modes (G21, G90, G94, G54).")
         self.follow_gcode_path("G21\nG90\nG94\nG54\n")

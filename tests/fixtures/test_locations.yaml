@@ -1,0 +1,16 @@
+single_pos:
+  num_x: 1
+  num_y: 1
+  x_offset: 0
+  x_origin: 50.0
+  y_offset: 0
+  y_origin: 50.0
+  z_origin: -10.0
+vial_rack:
+  num_x: 2
+  num_y: 4
+  x_offset: 20.0
+  x_origin: 100.0
+  y_offset: -15.0
+  y_origin: 80.0
+  z_origin: 0.0

@@ -14,6 +14,8 @@ This package can be used to control Genmitsu CNC machines. This is useful for ac
 - Move to absolute points (x,y,z)
   
 - Move to locations defined in a structured way (Eg move to Vial Position 0)
+
+- Control of the spindle output
   
 - Handles all gcode and CNC communication so you don't have to
   
@@ -30,6 +32,10 @@ This package can be used to control Genmitsu CNC machines. This is useful for ac
   - move_to_location(location, location_index) move to location position location_index
     
   - open() and close() are optional commands to open and close a persistent connection to the CNC machine
+    
+  - spindle_on(speed) turns on the spindle (M3) at the given RPM
+    
+  - spindle_off() turns off the spindle (M5)
 
 <h3>Locations:</h3>
 

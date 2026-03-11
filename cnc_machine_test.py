@@ -1,8 +1,6 @@
-
-
 from cnc_machine import CNC_Machine
 
-'''Create your CNC Machine
+"""Create your CNC Machine
 Required Parameters:
     com = "COM3" or whatever com port you are using for your CNC
 Optional parameters: 
@@ -16,12 +14,16 @@ Optional parameters:
     Z_LOW_BOUND=-35
     Z_HIGH_BOUND=0
     These boundaries vary depending on your specific CNC machine and setup. The default parameters are for the small blue machine with the moving deck. Its important to set these so that you don't hit your limit switch. 
-'''
-m = CNC_Machine(com="COM3", virtual=False, locations_file='location_status.yaml') 
+"""
+m = CNC_Machine(com="COM3", virtual=False, locations_file="location_status.yaml")
 
-m.connect()                                                     # open persistent connection (optional)
-m.home()                                                        # Home the CNC Machine
-m.move_to_location("vial_rack", 1, safe=True, speed=2500)       # Move to vial rack position 1
-m.move_to_point(100, 100, -30)                                  # Move to absolute point (100, 100, -30)
-m.origin()                                                      # Move to 0,0,0
-m.close()                                                       # Close persistent connection (only if opened)
+m.connect()  # open persistent connection (optional)
+m.home()  # Home the CNC Machine
+m.move_to_location(
+    "vial_rack", 1, safe=True, speed=2500
+)  # Move to vial rack position 1
+m.spindle_on(speed=2000)  # Turn on spindle
+m.move_to_point(100, 100, -30)  # Move to absolute point (100, 100, -30)
+m.spindle_off()  # Turn off spindle
+m.origin()  # Move to 0,0,0
+m.close()  # Close persistent connection (only if opened)
