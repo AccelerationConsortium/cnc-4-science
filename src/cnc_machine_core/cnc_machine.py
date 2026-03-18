@@ -253,9 +253,12 @@ class CNC_Machine:
         self.move_to_point_safe(x=0, y=0, z=0, gtype="G0")
 
     def home(self, unlock=True, set_wcs_zero=True, park=(0, 0, 0), rapid=True):
-        g = []
         if unlock:
-            g.append("$X")
+            try:
+                self.follow_gcode_path("$X\n", wait=False)
+            except RuntimeError:
+                pass
+        g = []
         g.append("$H")
         g += ["G21", "G90", "G94", "G54"]
         if set_wcs_zero:
