@@ -14,4 +14,8 @@ dependencies = [
 ]
 
 [tool.setuptools]
-py-modules = ["cnc_machine"]
+package-dir = {"" = "src"}
+packages = ["cnc_machine_core"]
+
+[tool.setuptools.package-data]
+cnc_machine_core = ["deck/*.json", "labware/*.json"]

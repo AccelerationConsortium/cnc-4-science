@@ -1,0 +1,7 @@
+# Sample deck state preset — edit for your application.
+# Map slot IDs to wells with their initial status.
+# Status strings are application-defined (e.g. "empty", "sample", "tip").
+'1':
+  A1: empty
+  B1: empty
+  C1: empty

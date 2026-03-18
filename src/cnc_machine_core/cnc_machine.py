@@ -140,10 +140,27 @@ class CNC_Machine:
         self.logger.debug(">> ?")
         return self._readline(timeout=0.5)
 
+    def is_alarm(self):
+        """Query GRBL status and return True if machine is in alarm state."""
+        if self.VIRTUAL:
+            return False
+        self._ensure_connected()
+        status = self._query_status()
+        return "<Alarm" in status or "ALARM" in status
+
+    def recover_if_alarm(self):
+        """Check for alarm state and home to recover if needed."""
+        if self.is_alarm():
+            self.logger.warning("Alarm detected — homing to recover.")
+            self.home()
+
     def wait_until_idle(self, poll_hz=10.0, max_s=60.0):
         if self.VIRTUAL:
             self.logger.debug("[VIRTUAL] wait_until_idle() immediate Idle.")
             return
+        # Flush stale 'ok' responses so we only read fresh status replies
+        if self.ser and self.ser.in_waiting:
+            self.ser.read(self.ser.in_waiting)
         period = 1.0 / float(poll_hz)
         t0 = time.time()
         last = ""
@@ -152,6 +169,8 @@ class CNC_Machine:
             last = status or last
             if status.startswith("<Idle"):
                 return
+            if "<Alarm" in status or "ALARM" in status:
+                raise RuntimeError(f"GRBL alarm: {status}")
             if (time.time() - t0) > max_s:
                 raise TimeoutError(
                     f"Machine did not become Idle in {max_s}s, last status: {last}"
@@ -255,6 +274,7 @@ class CNC_Machine:
         self.follow_gcode_path(gcode)
 
     def move_through_points(self, point_list, speed=3000):
+        self.recover_if_alarm()
         self.logger.info("Moving through %d points at F%d.", len(point_list), speed)
         lines = ["G90"]
         for x, y, z in point_list:
@@ -265,6 +285,7 @@ class CNC_Machine:
         self.follow_gcode_path("\n".join(lines) + "\n")
 
     def move_to_point(self, x=None, y=None, z=None, speed=3000, gtype="G1"):
+        self.recover_if_alarm()
         if self.coordinates_within_bounds(x, y, z):
             gcode = self.get_gcode_path_to_point(x, y, z, speed, gtype)
             self.logger.info(
@@ -276,6 +297,7 @@ class CNC_Machine:
             return None
 
     def move_to_point_safe(self, x, y, z, speed=3000, gtype="G1"):
+        self.recover_if_alarm()
         if self.coordinates_within_bounds(x, y, z):
             move = "G0" if gtype == "G0" else "G1"
             g = [
@@ -288,6 +310,66 @@ class CNC_Machine:
             self.follow_gcode_path("\n".join(g) + "\n")
         else:
             self.logger.warning("Out of bounds (safe move): X%s Y%s Z%s", x, y, z)
+
+    def move_to_point_safe_orthogonal(
+        self, x, y, z, waypoint, axis_order="yxy", speed=3000, gtype="G1"
+    ):
+        """Safe move that travels one axis at a time through waypoint(s).
+
+        Args:
+            x, y, z: Target position.
+            waypoint: For 'yxy'/'xyx' a single float.  For 'xyxy'/'yxyx' a
+                list of two floats [wp1, wp2].
+            axis_order: 'yxy'  Y→X→Y
+                        'xyx'  X→Y→X
+                        'xyxy' X→wp[0], Y→wp[1], X→target_x, Y→target_y
+                        'yxyx' Y→wp[0], X→wp[1], Y→target_y, X→target_x
+            speed: Feed rate in mm/min.
+            gtype: 'G0' for rapid or 'G1' for linear feed.
+        """
+        self.recover_if_alarm()
+        if not self.coordinates_within_bounds(x, y, z):
+            self.logger.warning("Out of bounds (orthogonal move): X%s Y%s Z%s", x, y, z)
+            return
+        move = "G0" if gtype == "G0" else "G1"
+        g = [f"G53 G0 Z{self.Z_HIGH_BOUND}", "G90"]
+        if axis_order == "yxy":
+            g.append(f"{move} Y{float(waypoint):.3f} F{int(speed)}")
+            g.append(f"{move} X{float(x):.3f} F{int(speed)}")
+            g.append(f"{move} Y{float(y):.3f} F{int(speed)}")
+        elif axis_order == "xyx":
+            g.append(f"{move} X{float(waypoint):.3f} F{int(speed)}")
+            g.append(f"{move} Y{float(y):.3f} F{int(speed)}")
+            g.append(f"{move} X{float(x):.3f} F{int(speed)}")
+        elif axis_order == "xyxy":
+            wp = list(waypoint)
+            g.append(f"{move} X{float(wp[0]):.3f} F{int(speed)}")
+            g.append(f"{move} Y{float(wp[1]):.3f} F{int(speed)}")
+            g.append(f"{move} X{float(x):.3f} F{int(speed)}")
+            g.append(f"{move} Y{float(y):.3f} F{int(speed)}")
+        elif axis_order == "yxyx":
+            wp = list(waypoint)
+            g.append(f"{move} Y{float(wp[0]):.3f} F{int(speed)}")
+            g.append(f"{move} X{float(wp[1]):.3f} F{int(speed)}")
+            g.append(f"{move} Y{float(y):.3f} F{int(speed)}")
+            g.append(f"{move} X{float(x):.3f} F{int(speed)}")
+        else:
+            self.logger.warning(
+                "Unknown axis_order '%s'. Use 'yxy', 'xyx', 'xyxy', or 'yxyx'.",
+                axis_order,
+            )
+            return
+        g.append(f"{move} Z{float(z):.3f}")
+        self.logger.info(
+            "Orthogonal move (%s) via %s to: X%s Y%s Z%s @ F%d.",
+            axis_order,
+            waypoint,
+            x,
+            y,
+            z,
+            speed,
+        )
+        self.follow_gcode_path("\n".join(g) + "\n")
 
     def move_to_location(self, location_name, location_index, safe=True, speed=3000):
         self.logger.info(
