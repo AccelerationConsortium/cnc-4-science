@@ -132,7 +132,27 @@ python examples/startup/hardware_check.py
 Once the hardware check passes, create your application from the starter template:
 
 1. **Copy the template** — copy `templates/starter_app/` to a new repository
-2. **Install cnc-machine-core** — `pip install -e path/to/cnc-machine`
+2. **Install cnc-machine-core** — install as a dependency in your project's virtual environment:
+
+   **Linux / macOS:**
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install git+https://github.com/AccelerationConsortium/cnc-4-science.git
+   ```
+
+   **Windows:**
+   ```powershell
+   python -m venv venv
+   .\venv\Scripts\Activate.ps1
+   pip install git+https://github.com/AccelerationConsortium/cnc-4-science.git
+   ```
+
+   Or for local editable development:
+   ```bash
+   pip install -e path/to/cnc-machine
+   ```
+
 3. **Add your labware** — place labware JSON files in the core `labware/` directory or your own project
 4. **Configure slots** — edit `LABWARE_BY_SLOT` in your protocols to map slots to labware
 5. **Calibrate tool offsets** — measure and update `tools/tool_definitions.json` with real x/y/z offsets
