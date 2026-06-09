@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,7 +8,8 @@ version = "0.7.0"
 description = "Control library for Genmitsu CNC machines used as low-cost lab automation platforms (liquid handling, fraction collection, vision-based capping, etc.)."
 readme = "README.md"
 requires-python = ">=3.9"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
   { name = "Owen Melville" },
   { name = "Kelvin Chow" },
@@ -17,7 +18,6 @@ keywords = ["cnc", "lab-automation", "self-driving-lab", "liquid-handling", "ope
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Science/Research",
-  "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.9",
@@ -40,7 +40,8 @@ Changelog = "https://github.com/AccelerationConsortium/cnc-4-science/blob/main/C
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-packages = ["cnc_machine_core"]
+packages = ["cnc_machine_core", "cnc_machine_core.deck", "cnc_machine_core.labware"]
 
 [tool.setuptools.package-data]
-cnc_machine_core = ["deck/*.json", "labware/*.json"]
+"cnc_machine_core.deck" = ["*.json"]
+"cnc_machine_core.labware" = ["*.json"]
