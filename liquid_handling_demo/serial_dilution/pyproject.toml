@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "serial-dilution-demo"
+version = "0.1.0"
+description = "1:2 serial dilution demo using the CNC liquid handling platform"
+requires-python = ">=3.9"
+dependencies = [
+  "cnc-machine-core @ git+https://github.com/AccelerationConsortium/cnc-4-science.git@main",
+  "opentrons-shared-data",
+  "pyyaml",
+  "pyserial",
+]
+
+[project.scripts]
+serial-dilution = "serial_dilution_demo.__main__:run"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+serial_dilution_demo = ["tools/tool_definitions.json"]
+
+# uv: resolve cnc-machine-core from the parent repo (two levels up)
+[tool.uv.sources]
+cnc-machine-core = { path = "../..", editable = true }

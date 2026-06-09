@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.0 - 2026-06-09
+- Restructured liquid handling demo as installable package `serial-dilution-demo` under `liquid_handling_demo/serial_dilution/`.
+- Package layout: `src/serial_dilution_demo/` with `tools/` (incl. vendored picus driver) and `protocol.py` entry point.
+- `pyproject.toml` declares `cnc-machine-core` as a local path dependency (uv editable) — no `sys.path` hacks.
+- Entry point: `serial-dilution` CLI command (or `python -m serial_dilution_demo`).
+- Standard labware loaded at runtime via `opentrons-shared-data`; only custom tip rack JSON stored locally.
+- Added `Deck.load_labware_definition(slot_id, dict)` to `cnc_machine_core`.
+- Added `opentrons-shared-data` to `cnc-machine-core` dependencies.
+
 ## 0.5.0 - 2026-03-18
 - Restructured to standard `src/` layout: core modules now under `src/cnc_machine_core/`.
 - Package imports changed: `from cnc_machine_core import CNC_Machine, Deck, DeckState`.

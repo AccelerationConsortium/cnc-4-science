@@ -1,0 +1,326 @@
+{
+    "ordering": [
+        [
+            "A1",
+            "B1",
+            "C1"
+        ],
+        [
+            "A2",
+            "B2",
+            "C2"
+        ],
+        [
+            "A3",
+            "B3",
+            "C3"
+        ],
+        [
+            "A4",
+            "B4",
+            "C4"
+        ],
+        [
+            "A5",
+            "B5",
+            "C5"
+        ],
+        [
+            "A6",
+            "B6",
+            "C6"
+        ],
+        [
+            "A7",
+            "B7",
+            "C7"
+        ],
+        [
+            "A8",
+            "B8",
+            "C8"
+        ]
+    ],
+    "brand": {
+        "brand": "sartorius",
+        "brandId": [
+            "custom"
+        ]
+    },
+    "metadata": {
+        "displayName": "Sartorius 24 Tip Rack 5000 µL",
+        "displayCategory": "tipRack",
+        "displayVolumeUnits": "µL",
+        "tags": []
+    },
+    "dimensions": {
+        "xDimension": 127.7,
+        "yDimension": 85.5,
+        "zDimension": 37.5
+    },
+    "wells": {
+        "A1": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 7.85,
+            "y": 74.75,
+            "z": 7.5
+        },
+        "B1": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 7.85,
+            "y": 42.75,
+            "z": 7.5
+        },
+        "C1": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 7.85,
+            "y": 10.75,
+            "z": 7.5
+        },
+        "A2": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 23.85,
+            "y": 74.75,
+            "z": 7.5
+        },
+        "B2": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 23.85,
+            "y": 42.75,
+            "z": 7.5
+        },
+        "C2": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 23.85,
+            "y": 10.75,
+            "z": 7.5
+        },
+        "A3": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 39.85,
+            "y": 74.75,
+            "z": 7.5
+        },
+        "B3": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 39.85,
+            "y": 42.75,
+            "z": 7.5
+        },
+        "C3": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 39.85,
+            "y": 10.75,
+            "z": 7.5
+        },
+        "A4": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 55.85,
+            "y": 74.75,
+            "z": 7.5
+        },
+        "B4": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 55.85,
+            "y": 42.75,
+            "z": 7.5
+        },
+        "C4": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 55.85,
+            "y": 10.75,
+            "z": 7.5
+        },
+        "A5": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 71.85,
+            "y": 74.75,
+            "z": 7.5
+        },
+        "B5": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 71.85,
+            "y": 42.75,
+            "z": 7.5
+        },
+        "C5": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 71.85,
+            "y": 10.75,
+            "z": 7.5
+        },
+        "A6": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 87.85,
+            "y": 74.75,
+            "z": 7.5
+        },
+        "B6": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 87.85,
+            "y": 42.75,
+            "z": 7.5
+        },
+        "C6": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 87.85,
+            "y": 10.75,
+            "z": 7.5
+        },
+        "A7": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 103.85,
+            "y": 74.75,
+            "z": 7.5
+        },
+        "B7": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 103.85,
+            "y": 42.75,
+            "z": 7.5
+        },
+        "C7": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 103.85,
+            "y": 10.75,
+            "z": 7.5
+        },
+        "A8": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 119.85,
+            "y": 74.75,
+            "z": 7.5
+        },
+        "B8": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 119.85,
+            "y": 42.75,
+            "z": 7.5
+        },
+        "C8": {
+            "depth": 30,
+            "totalLiquidVolume": 5000,
+            "shape": "circular",
+            "diameter": 10,
+            "x": 119.85,
+            "y": 10.75,
+            "z": 7.5
+        }
+    },
+    "groups": [
+        {
+            "metadata": {},
+            "wells": [
+                "A1",
+                "B1",
+                "C1",
+                "A2",
+                "B2",
+                "C2",
+                "A3",
+                "B3",
+                "C3",
+                "A4",
+                "B4",
+                "C4",
+                "A5",
+                "B5",
+                "C5",
+                "A6",
+                "B6",
+                "C6",
+                "A7",
+                "B7",
+                "C7",
+                "A8",
+                "B8",
+                "C8"
+            ]
+        }
+    ],
+    "parameters": {
+        "format": "irregular",
+        "quirks": [],
+        "isTiprack": true,
+        "tipLength": 30,
+        "isMagneticModuleCompatible": false,
+        "loadName": "sartorius_24_tiprack_5000ul"
+    },
+    "namespace": "custom_beta",
+    "version": 1,
+    "schemaVersion": 2,
+    "cornerOffsetFromSlot": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    }
+}

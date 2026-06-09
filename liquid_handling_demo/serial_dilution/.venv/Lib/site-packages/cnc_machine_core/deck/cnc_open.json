@@ -1,0 +1,22 @@
+{
+    "deckId": "cnc_open",
+    "schemaVersion": 1,
+    "dimensions": [280.0, 180.0, 0.0],
+    "metadata": {
+        "displayName": "CNC Open Deck",
+        "description": "Single-slot open layout — full work area as one slot"
+    },
+    "robot": {
+        "model": "Genmitsu CNC"
+    },
+    "locations": {
+        "slots": [
+            {
+                "id": "1",
+                "displayName": "Slot 1 (full area)",
+                "position": [0.0, 0.0, 0.0],
+                "boundingBox": {"xDimension": 280.0, "yDimension": 180.0, "zDimension": 0}
+            }
+        ]
+    }
+}

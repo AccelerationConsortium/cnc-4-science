@@ -136,6 +136,16 @@ class Deck:
         self._labware[str(slot_id)] = labware
         return labware
 
+    def load_labware_definition(self, slot_id, definition):
+        """Load labware from a dict (e.g. from opentrons-shared-data).
+
+        Returns a Labware object with wells resolved to absolute coordinates.
+        """
+        slot = self.get_slot(slot_id)
+        labware = Labware(definition, slot["position"])
+        self._labware[str(slot_id)] = labware
+        return labware
+
     def get_labware(self, slot_id):
         """Return the Labware for a slot, or None."""
         return self._labware.get(str(slot_id))
