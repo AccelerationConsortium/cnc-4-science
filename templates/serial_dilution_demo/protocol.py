@@ -18,13 +18,17 @@ Workflow:
 
 import json
 import logging
+import sys
 from pathlib import Path
 
 import yaml
 from cnc_machine_core import CNC_Machine, Deck, DeckState
 from opentrons_shared_data.labware import load_definition
 
-from serial_dilution_demo.tools.sartorius_pipette import SartoriusPipette
+# Make sibling `tools/` package importable when run as `python protocol.py`
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from tools.sartorius_pipette import SartoriusPipette  # noqa: E402
 
 # --- Configuration ---
 
@@ -43,18 +47,17 @@ Z_PLATE_DISPENSE = -35.0  # just above plate well for dispensing
 TIP_PATH_Y_OFFSET = 15.0  # mm Y offset for yxy orthogonal tip moves
 
 # Volumes (µL)
-PREFILL_VOLUME = 1750  # 1.5mL diluent prefilled into wells 2..24
+PREFILL_VOLUME = 1250  # 1.25mL diluent prefilled into wells 2..24
 STOCK_VOLUME = PREFILL_VOLUME * 2  # initial stock load into plate A1
-DILUTION_VOLUME = 1750  # transferred between wells for 1:2 dilution
-MIX_VOLUME = 1000  # aspirate/dispense volume during mixing
+DILUTION_VOLUME = 1250  # transferred between wells for 1:2 dilution
+MIX_VOLUME = 1250  # aspirate/dispense volume during mixing
 MIX_CYCLES = 3
 
-# Paths — BASE_PATH is the package root (liquid_handling_demo/serial_dilution/)
-# protocol.py lives at src/serial_dilution_demo/protocol.py → parents[2] = package root
-BASE_PATH = Path(__file__).resolve().parents[2]
+# Paths — everything is colocated with this script (flat layout)
+BASE_PATH = Path(__file__).resolve().parent
 CUSTOM_LABWARE_DIR = BASE_PATH / "custom_labware"
-TOOLS_PATH = Path(__file__).resolve().parent / "tools" / "tool_definitions.json"
-PRESET_PATH = BASE_PATH / "presets" / "liquid_handling_preset.yaml"
+TOOLS_PATH = BASE_PATH / "tool_definitions.json"
+PRESET_PATH = BASE_PATH / "deck_preset.yaml"
 STATE_OUTPUT = BASE_PATH / "output" / "deck_state.yaml"
 
 TIPRACK_PATH = CUSTOM_LABWARE_DIR / "sartorius_24_tiprack_5000ul.json"
@@ -170,6 +173,52 @@ def mix_at(cnc, pipette, deck, slot, well, volume, cycles, z_height, offset):
     cnc.move_to_point_safe(x, y, Z_HOVER, speed=MOVE_SPEED)
 
 
+def dilute(
+    cnc,
+    pipette,
+    deck,
+    slot,
+    src_well,
+    dst_well,
+    src_z,
+    dst_z,
+    volume,
+    mix_volume,
+    mix_cycles,
+    mix_z,
+    offset,
+):
+    """Aspirate from src, dispense into dst, mix — minimising Z travel.
+
+    Stays at depth for dispense→mix and mix→next-aspirate so the CNC
+    does not do a redundant hover between consecutive steps.
+    """
+    sx, sy = _xy(deck, slot, src_well, offset)
+    dx, dy = _xy(deck, slot, dst_well, offset)
+    mx, my = _xy(deck, slot, dst_well, offset)  # mix in dst
+
+    # Aspirate from src
+    cnc.move_to_point_safe(sx, sy, Z_HOVER, speed=MOVE_SPEED)
+    cnc.move_to_point_safe(sx, sy, src_z, speed=MOVE_SPEED)
+    pipette.aspirate(volume)
+
+    # Travel to dst at hover, descend, dispense — stay down for mixing
+    cnc.move_to_point_safe(sx, sy, Z_HOVER, speed=MOVE_SPEED)
+    cnc.move_to_point_safe(dx, dy, Z_HOVER, speed=MOVE_SPEED)
+    cnc.move_to_point_safe(dx, dy, dst_z, speed=MOVE_SPEED)
+    pipette.dispense(volume)
+
+    # Mix in-place without going back up
+    if mix_z is not None and mix_z != dst_z:
+        cnc.move_to_point_safe(mx, my, mix_z, speed=MOVE_SPEED)
+    for _ in range(mix_cycles):
+        pipette.aspirate(mix_volume)
+        pipette.dispense(mix_volume)
+
+    # Leave tip at depth — caller moves to hover when ready
+    cnc.move_to_point_safe(mx, my, Z_HOVER, speed=MOVE_SPEED)
+
+
 def transfer(
     cnc,
     pipette,
@@ -227,7 +276,7 @@ def run():
     STATE_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     with open(PRESET_PATH, "r", encoding="utf-8") as f:
         preset = yaml.safe_load(f)
-    state = DeckState(output_path=str(STATE_OUTPUT))
+    state = DeckState(state_file=str(STATE_OUTPUT))
     state.init_from_preset(preset)
 
     # Tool config
@@ -299,27 +348,25 @@ def run():
         )
         state.set_status(SLOT_PLATE, first_well, "filled")
 
-        # Serial 1:2 dilution across remaining wells
+        # Serial 1:2 dilution across remaining wells (optimised: no redundant Z hops)
         for i in range(len(well_order) - 1):
             src = well_order[i]
             dst = well_order[i + 1]
             print(f"  dilute {src} -> {dst} ({DILUTION_VOLUME}µL, mix x{MIX_CYCLES})")
-            transfer(
+            dilute(
                 cnc,
                 pipette,
                 deck,
                 SLOT_PLATE,
                 src,
-                Z_PLATE_ASPIRATE,
-                SLOT_PLATE,
                 dst,
+                Z_PLATE_ASPIRATE,
                 Z_PLATE_DISPENSE,
                 DILUTION_VOLUME,
+                MIX_VOLUME,
+                MIX_CYCLES,
+                Z_PLATE_ASPIRATE,
                 pipette_offset,
-                mix_after=True,
-                mix_volume=MIX_VOLUME,
-                mix_cycles=MIX_CYCLES,
-                mix_z=Z_PLATE_ASPIRATE,
             )
             state.set_status(SLOT_PLATE, dst, "filled")
 
@@ -342,3 +389,4 @@ def run():
 
 if __name__ == "__main__":
     run()
+

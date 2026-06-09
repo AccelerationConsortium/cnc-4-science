@@ -12,7 +12,7 @@ Controls:
     q           quit
 
 Usage:
-    python protocols/z_helper.py
+    python z_helper.py
 """
 
 import json
@@ -33,11 +33,10 @@ STEP_COARSE = 2.0
 STEP_MEDIUM = 0.5
 STEP_FINE = 0.1
 
-# Paths — BASE_PATH is the package root (liquid_handling_demo/serial_dilution/)
-# z_helper.py lives at src/serial_dilution_demo/z_helper.py → parents[2] = package root
-BASE_PATH = Path(__file__).resolve().parents[2]
-TOOLS_PATH = Path(__file__).resolve().parent / "tools" / "tool_definitions.json"
-CALIBRATION_FILE = BASE_PATH / "z_calibration.yaml"
+# Paths — everything is colocated with this script (flat layout)
+BASE_PATH = Path(__file__).resolve().parent
+TOOLS_PATH = BASE_PATH / "tool_definitions.json"
+CALIBRATION_FILE = BASE_PATH / "output" / "z_calibration.yaml"
 TIPRACK_PATH = BASE_PATH / "custom_labware" / "sartorius_24_tiprack_5000ul.json"
 
 # Map slots to labware (must match protocol.py)
@@ -69,6 +68,7 @@ def load_calibration():
 
 
 def save_calibration(data):
+    CALIBRATION_FILE.parent.mkdir(parents=True, exist_ok=True)
     with CALIBRATION_FILE.open("w", encoding="utf-8") as f:
         yaml.dump(data, f, default_flow_style=False)
 

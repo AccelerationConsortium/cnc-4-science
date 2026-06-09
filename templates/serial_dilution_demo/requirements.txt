@@ -1,0 +1,4 @@
+# Install cnc-4-science from PyPI.
+# For local development against an unreleased core, use:
+#   pip install -e ../..
+cnc-4-science
