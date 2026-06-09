@@ -1,0 +1,85 @@
+# Liquid handling deck preset — serial dilution demo
+# Slot 1 (front-left): 24-well plate (corning_24_wellplate_3.4ml_flat) — all empty
+# Slot 2 (front-right): 5000µL tip rack (sartorius_24_tiprack_5000ul) — 24 tips
+# Slot 3 (back-left): 4-well reservoir (opentrons_tough_4_reservoir_72ml) — A1 stock, A2 diluent
+# Slot 4 (back-right): Tip waste (reuses sartorius_24_tiprack_5000ul layout) — 24 empty drop positions
+'1':
+  A1: empty
+  B1: empty
+  C1: empty
+  D1: empty
+  A2: empty
+  B2: empty
+  C2: empty
+  D2: empty
+  A3: empty
+  B3: empty
+  C3: empty
+  D3: empty
+  A4: empty
+  B4: empty
+  C4: empty
+  D4: empty
+  A5: empty
+  B5: empty
+  C5: empty
+  D5: empty
+  A6: empty
+  B6: empty
+  C6: empty
+  D6: empty
+'2':
+  A1: tip
+  B1: tip
+  C1: tip
+  A2: tip
+  B2: tip
+  C2: tip
+  A3: tip
+  B3: tip
+  C3: tip
+  A4: tip
+  B4: tip
+  C4: tip
+  A5: tip
+  B5: tip
+  C5: tip
+  A6: tip
+  B6: tip
+  C6: tip
+  A7: tip
+  B7: tip
+  C7: tip
+  A8: tip
+  B8: tip
+  C8: tip
+'3':
+  A1: red
+  A2: water
+  A3: empty
+  A4: empty
+'4':
+  A1: empty
+  B1: empty
+  C1: empty
+  A2: empty
+  B2: empty
+  C2: empty
+  A3: empty
+  B3: empty
+  C3: empty
+  A4: empty
+  B4: empty
+  C4: empty
+  A5: empty
+  B5: empty
+  C5: empty
+  A6: empty
+  B6: empty
+  C6: empty
+  A7: empty
+  B7: empty
+  C7: empty
+  A8: empty
+  B8: empty
+  C8: empty

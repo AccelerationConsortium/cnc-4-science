@@ -3,15 +3,40 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "cnc-machine-core"
-version = "0.1.0"
-description = "Core CNC machine control module"
+name = "cnc-4-science"
+version = "0.7.0"
+description = "Control library for Genmitsu CNC machines used as low-cost lab automation platforms (liquid handling, fraction collection, vision-based capping, etc.)."
 readme = "README.md"
 requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+  { name = "Owen Melville" },
+  { name = "Kelvin Chow" },
+]
+keywords = ["cnc", "lab-automation", "self-driving-lab", "liquid-handling", "opentrons", "grbl"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering",
+]
 dependencies = [
   "pyyaml",
   "pyserial",
+  "opentrons-shared-data",
 ]
+
+[project.urls]
+Homepage = "https://github.com/AccelerationConsortium/cnc-4-science"
+Repository = "https://github.com/AccelerationConsortium/cnc-4-science"
+Issues = "https://github.com/AccelerationConsortium/cnc-4-science/issues"
+Changelog = "https://github.com/AccelerationConsortium/cnc-4-science/blob/main/CHANGELOG.md"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

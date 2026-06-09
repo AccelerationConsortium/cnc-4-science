@@ -5,7 +5,15 @@ Authors: Owen Melville, Kelvin Chow
 Last Updated: 2026-03-18
 
 <h2> Overall description </h2>
-This package can be used to control Genmitsu CNC machines. This is useful for accelerated discovery because you can put your tools onto the CNC machine. All you need is to install the packages in requirements.txt then you can import cnc_machine.py and use its methods to intuitively and seemlessly move the cnc machine with whatever scientific tools you want to incorporate. 
+This package can be used to control Genmitsu CNC machines. This is useful for accelerated discovery because you can put your tools onto the CNC machine.
+
+Install from PyPI:
+
+```bash
+pip install cnc-4-science
+```
+
+Then import `cnc_machine_core` and use its methods to intuitively and seamlessly move the CNC machine with whatever scientific tools you want to incorporate. See `templates/serial_dilution_demo/` for a full worked example.
 
 <h3>Basic Functions:</h3>
 
@@ -98,9 +106,7 @@ The location index moves through a full column before advancing to the next. Ind
 
 <h3>Z Calibration Helper</h3>
 
-A starter Z calibration script is included at `templates/starter_app/protocols/z_helper.py`. It moves the CNC to a selected slot/well (with tool offset applied), then lets the user step Z up and down at three granularity levels (coarse, medium, fine) to find the correct working height. This is much faster than manually jogging and reading coordinates.
-
-Note: the helper requires the deck and labware to be configured for your application. The template version in the core repo uses a generic single-slot setup, so you will likely need to copy it into your application and update the deck/labware/tool configuration to match your actual setup before it is useful.
+A Z calibration script is included at `templates/serial_dilution_demo/z_helper.py`. It moves the CNC to a selected slot/well (with tool offset applied), then lets the user step Z up and down at three granularity levels (coarse, medium, fine) to find the correct working height. This is much faster than manually jogging and reading coordinates. Copy it into your own application and update the deck/labware/tool configuration for your setup.
 
 <h3>Deck State</h3>
 
@@ -119,7 +125,7 @@ ds.summary()                                         # print slot breakdown
 ```
 
 Status strings are application-defined — use whatever makes sense for your workflow.
-A sample preset is in `templates/starter_app/presets/deck_preset.yaml`.
+A sample preset is in `templates/serial_dilution_demo/deck_preset.yaml`.
 
 <h3>Starting a New Application</h3>
 
@@ -129,52 +135,53 @@ After physically setting up the CNC machine, run `examples/startup/hardware_chec
 python examples/startup/hardware_check.py
 ```
 
-Once the hardware check passes, create your application from the starter template:
+Once the hardware check passes, create your application from the starter template at `templates/serial_dilution_demo/` (a full worked example using a Sartorius Picus 2 pipette for 1:2 serial dilution).
 
-1. **Copy the template** — copy `templates/starter_app/` to a new repository
-2. **Install cnc-machine-core** — install as a dependency in your project's virtual environment:
+1. **Copy the template** — copy `templates/serial_dilution_demo/` to a new repository or directory
+2. **Install cnc-4-science** — install as a dependency in your project's virtual environment:
 
    **Linux / macOS:**
    ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   pip install git+https://github.com/AccelerationConsortium/cnc-4-science.git
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install cnc-4-science
    ```
 
    **Windows:**
    ```powershell
-   python -m venv venv
-   .\venv\Scripts\Activate.ps1
-   pip install git+https://github.com/AccelerationConsortium/cnc-4-science.git
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   pip install cnc-4-science
    ```
 
-   Or for local editable development:
+   Or for local editable development against an unreleased core:
    ```bash
    pip install -e path/to/cnc-machine
    ```
 
-3. **Add your labware** — place labware JSON files in the core `labware/` directory or your own project
-4. **Configure slots** — edit `LABWARE_BY_SLOT` in your protocols to map slots to labware
-5. **Calibrate tool offsets** — measure and update `tools/tool_definitions.json` with real x/y/z offsets
-6. **Calibrate Z heights** — run `protocols/z_helper.py` to find working Z for each tool + labware combo
-7. **Validate** — run `protocols/simple_well_cycle.py` in virtual mode, then on hardware
-8. **Implement tools** — use `tools/vacuum_gripper.py` as a starting point for custom tools
+3. **Add your labware** — place custom labware JSON files in `custom_labware/`, or load standard Opentrons labware via `opentrons_shared_data.labware.load_definition(...)`
+4. **Configure slots** — edit the `deck.load_labware*` calls in your protocol to map slots to labware
+5. **Calibrate tool offsets** — measure and update `tool_definitions.json` with real x/y/z offsets
+6. **Calibrate Z heights** — run `python z_helper.py` to find working Z for each tool + labware combo
+7. **Validate** — set `VIRTUAL = True` in `protocol.py` for a dry run, then on hardware
+8. **Implement tools** — use `tools/sartorius_pipette.py` as a pattern for wrapping new tools
 
 <h4>Architecture</h4>
 
 ```
-cnc-machine (core)                     Your Application
-├── src/cnc_machine_core/                ├── tools/
-│   ├── cnc_machine.py  (motion)         │   ├── your_tool.py
-│   ├── cnc_deck.py     (deck/wells)     │   └── tool_definitions.json
-│   ├── deck_state.py   (state)          ├── protocols/
-│   ├── deck/           (definitions)    │   └── your_workflow.py
-│   └── labware/        (labware JSON)   ├── presets/
-├── templates/          (starter app)    │   └── my_preset.yaml
-└── pyproject.toml                       └── ...
+cnc-4-science (library, on PyPI)         Your Application (copied template)
+├── src/cnc_machine_core/                  ├── protocol.py
+│   ├── cnc_machine.py  (motion)            ├── z_helper.py
+│   ├── cnc_deck.py     (deck/wells)        ├── tool_definitions.json
+│   ├── deck_state.py   (state)             ├── deck_preset.yaml
+│   ├── deck/           (definitions)        ├── custom_labware/
+│   └── labware/        (labware JSON)       ├── tools/
+├── templates/                              │   └── your_tool.py
+│   └── serial_dilution_demo/               └── requirements.txt  (`cnc-4-science`)
+└── pyproject.toml
 ```
 
-- **Core** owns: machine control, deck/labware primitives, standard definitions, starter templates
+- **Library** owns: machine control, deck/labware primitives, standard definitions
 - **App** owns: concrete tool implementations, calibrated configs, workflow protocols
 
 <h4>Tool Contract</h4>
@@ -189,7 +196,7 @@ class MyTool:
         # extract parameters from tool_config["parameters"]
 ```
 
-See `templates/starter_app/tools/vacuum_gripper.py` for a complete template and standard reference.
+See `templates/serial_dilution_demo/tools/sartorius_pipette.py` for a working reference implementation.
 
 <h3>Advice on Integration with Scientific Instruments</h3>
 

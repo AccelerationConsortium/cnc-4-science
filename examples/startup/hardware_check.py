@@ -8,7 +8,7 @@ Update COM port and bounds to match your setup before running.
 Usage:
     python hardware_check.py
 """
-m = CNC_Machine(com="COM3", virtual=False, locations_file="location_status.yaml")
+m = CNC_Machine(com="COM4", virtual=False, locations_file="location_status.yaml")
 
 m.connect()  # open persistent connection (optional)
 m.home()  # Home the CNC Machine

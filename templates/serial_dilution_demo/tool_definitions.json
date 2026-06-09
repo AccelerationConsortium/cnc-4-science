@@ -1,0 +1,15 @@
+{
+    "tools": [
+        {
+            "toolId": "sartorius_pipette",
+            "displayName": "Sartorius Picus 2 5000µL Pipette",
+            "offset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "com_port": "COM3",
+            "default_speed": 7
+        }
+    ]
+}

@@ -12,7 +12,7 @@ Controls:
     q           quit
 
 Usage:
-    python protocols/z_helper.py
+    python z_helper.py
 """
 
 import json
@@ -22,24 +22,35 @@ from pathlib import Path
 
 from cnc_machine_core import CNC_Machine
 from cnc_machine_core import Deck
+from opentrons_shared_data.labware import load_definition
 
 # --- Configuration ---
 
-COM_PORT = "COM6"
-VIRTUAL = True  # set False for real hardware
+COM_PORT = "COM4"
+VIRTUAL = False  # set False for real hardware
 
 STEP_COARSE = 2.0
 STEP_MEDIUM = 0.5
 STEP_FINE = 0.1
 
-BASE_PATH = Path(__file__).resolve().parent.parent
-LABWARE_DIR = BASE_PATH.parent / "labware"
-TOOLS_PATH = BASE_PATH / "tools" / "tool_definitions.json"
-CALIBRATION_FILE = BASE_PATH / "z_calibration.yaml"
+# Paths — everything is colocated with this script (flat layout)
+BASE_PATH = Path(__file__).resolve().parent
+TOOLS_PATH = BASE_PATH / "tool_definitions.json"
+CALIBRATION_FILE = BASE_PATH / "output" / "z_calibration.yaml"
+TIPRACK_PATH = BASE_PATH / "custom_labware" / "sartorius_24_tiprack_5000ul.json"
 
-# Map slots to labware (edit for your deck)
-LABWARE_BY_SLOT = {
-    "1": LABWARE_DIR / "vialtrayholder_25_tuberack_1000ul.json",
+# Map slots to labware (must match protocol.py)
+# Slot 1: corning_24_wellplate_3.4ml_flat (dilution target)
+# Slot 2: sartorius_24_tiprack_5000ul (5000µL tips)
+# Slot 3: opentrons_tough_4_reservoir_72ml (stock + diluent)
+# Slot 4: sartorius_24_tiprack_5000ul (tip waste)
+
+# Define labware slots - use load_definition for Opentrons standard labware
+LABWARE_DEFINITIONS = {
+    "1": ("corning_24_wellplate_3.4ml_flat", None),  # Opentrons standard, version 1
+    "2": (None, str(TIPRACK_PATH)),  # Custom labware file
+    "3": ("opentrons_tough_4_reservoir_72ml", None),  # Opentrons standard, version 1
+    "4": (None, str(TIPRACK_PATH)),  # Custom labware file
 }
 
 
@@ -57,6 +68,7 @@ def load_calibration():
 
 
 def save_calibration(data):
+    CALIBRATION_FILE.parent.mkdir(parents=True, exist_ok=True)
     with CALIBRATION_FILE.open("w", encoding="utf-8") as f:
         yaml.dump(data, f, default_flow_style=False)
 
@@ -64,8 +76,18 @@ def save_calibration(data):
 def run():
     deck = Deck()
     labware_by_slot = {}
-    for slot_id, path in LABWARE_BY_SLOT.items():
-        labware_by_slot[slot_id] = deck.load_labware(slot_id, str(path))
+
+    # Load labware based on definitions
+    for slot_id, (opentrons_name, custom_path) in LABWARE_DEFINITIONS.items():
+        if opentrons_name:
+            # Load Opentrons standard labware
+            deck.load_labware_definition(
+                slot_id, load_definition(opentrons_name, version=1)
+            )
+        elif custom_path:
+            # Load custom labware
+            deck.load_labware(slot_id, custom_path)
+        labware_by_slot[slot_id] = deck.get_labware(slot_id)
 
     tools = load_tools()
     calibration = load_calibration()
@@ -96,7 +118,7 @@ def run():
     print(f"Using: {tool_label}\n")
 
     # Slot and well selection
-    available = list(LABWARE_BY_SLOT.keys())
+    available = list(LABWARE_DEFINITIONS.keys())
     slot_id = input(f"Slot ID ({', '.join(available)}): ").strip()
     if slot_id not in available:
         print(f"Invalid slot '{slot_id}'")
@@ -148,7 +170,12 @@ def run():
                 step, step_label = STEP_FINE, "fine"
                 continue
             elif cmd == "s":
-                labware_name = LABWARE_BY_SLOT[slot_id].stem
+                # Get labware name for calibration key
+                opentrons_name, custom_path = LABWARE_DEFINITIONS[slot_id]
+                if opentrons_name:
+                    labware_name = opentrons_name
+                else:
+                    labware_name = Path(custom_path).stem
                 cal_key = f"{labware_name}__{tool_label}"
                 calibration[cal_key] = round(current_z, 2)
                 save_calibration(calibration)

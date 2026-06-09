@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.7.0 - 2026-06-09
+- **Distribution renamed**: PyPI package is now `cnc-4-science` (was `cnc-machine-core`). Import name `cnc_machine_core` is unchanged.
+- **Published to PyPI**: install with `pip install cnc-4-science`. Releases are automated via GitHub Actions on `v*` tags using PyPI Trusted Publisher (OIDC).
+- **Liquid handling demo moved** from `liquid_handling_demo/serial_dilution/` (installable package) to `templates/serial_dilution_demo/` (flat-layout reference template). Run with `python protocol.py`; no install of the demo itself required.
+- Added project metadata (license, authors, urls, classifiers, keywords) to `pyproject.toml`.
+- Added `.github/workflows/publish.yml` for automated PyPI releases.
+- Removed redundant top-level `requirements.txt` (dependencies now in `pyproject.toml`).
+- Templates directory is excluded from the published wheel (only library code ships to PyPI).
+- Synced `pyproject.toml` version to changelog (was stale at 0.1.0).
+
+## 0.6.0 - 2026-06-09
+- Restructured liquid handling demo as installable package `serial-dilution-demo` under `liquid_handling_demo/serial_dilution/`.
+- Package layout: `src/serial_dilution_demo/` with `tools/` (incl. vendored picus driver) and `protocol.py` entry point.
+- `pyproject.toml` declares `cnc-machine-core` as a local path dependency (uv editable) — no `sys.path` hacks.
+- Entry point: `serial-dilution` CLI command (or `python -m serial_dilution_demo`).
+- Standard labware loaded at runtime via `opentrons-shared-data`; only custom tip rack JSON stored locally.
+- Added `Deck.load_labware_definition(slot_id, dict)` to `cnc_machine_core`.
+- Added `opentrons-shared-data` to `cnc-machine-core` dependencies.
+
 ## 0.5.0 - 2026-03-18
 - Restructured to standard `src/` layout: core modules now under `src/cnc_machine_core/`.
 - Package imports changed: `from cnc_machine_core import CNC_Machine, Deck, DeckState`.
