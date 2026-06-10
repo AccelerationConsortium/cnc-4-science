@@ -7,7 +7,7 @@
   - `Deck(deck_definition)` now accepts a built-in name (`Deck("cnc_1_slot_deck")`) or a path. Default is unchanged (`cnc_4_slot_deck`).
   - Example `tools/cnc_config.yaml` declares `deck.definition: cnc_4_slot_deck` so the deck choice is visible from config.
 - **Examples reorganized**: merged `templates/` and `examples/` into a single `examples/` tree. Removed legacy `liquid_handling_demo/`. `examples/startup/` renamed to `examples/hello_cnc/`.
-- **Liquid handling demo restructured** as a reusable template at `examples/liquid_handling/picus_pipette/`:
+- **Liquid handling demo restructured** as a reusable template at `examples/liquid_handling/`:
   - Protocol moved to `protocols/serial_dilution_demo.py` (was `protocol.py` at root).
   - Per-tool config split: CNC is now treated as just another tool. Configs live under `tools/`:
     - `tools/cnc_config.yaml` — CNC machine, deck layout (slot→role), Z heights, virtual flag.

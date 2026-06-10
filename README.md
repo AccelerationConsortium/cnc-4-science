@@ -13,7 +13,7 @@ Install from PyPI:
 pip install cnc-4-science
 ```
 
-Then import `cnc_machine_core` and use its methods to intuitively and seamlessly move the CNC machine with whatever scientific tools you want to incorporate. See `examples/liquid_handling/picus_pipette/` for a full worked example.
+Then import `cnc_machine_core` and use its methods to intuitively and seamlessly move the CNC machine with whatever scientific tools you want to incorporate. See `examples/liquid_handling/` for a full worked example.
 
 <h3>Basic Functions:</h3>
 
@@ -106,7 +106,7 @@ The location index moves through a full column before advancing to the next. Ind
 
 <h3>Z Calibration Helper</h3>
 
-A Z calibration script is included at `examples/liquid_handling/picus_pipette/z_helper.py`. It moves the CNC to a selected slot/well (with tool offset applied), then lets the user step Z up and down at three granularity levels (coarse, medium, fine) to find the correct working height. This is much faster than manually jogging and reading coordinates. Copy it into your own application and update the deck/labware/tool configuration for your setup.
+A Z calibration script is included at `examples/liquid_handling/z_helper.py`. It moves the CNC to a selected slot/well (with tool offset applied), then lets the user step Z up and down at three granularity levels (coarse, medium, fine) to find the correct working height. This is much faster than manually jogging and reading coordinates. Copy it into your own application and update the deck/labware/tool configuration for your setup.
 
 <h3>Deck State</h3>
 
@@ -125,7 +125,7 @@ ds.summary()                                         # print slot breakdown
 ```
 
 Status strings are application-defined — use whatever makes sense for your workflow.
-A sample preset is in `examples/liquid_handling/picus_pipette/deck_preset.yaml`.
+A sample preset is in `examples/liquid_handling/deck_preset.yaml`.
 
 <h3>Starting a New Application</h3>
 
@@ -135,9 +135,9 @@ After physically setting up the CNC machine, run `examples/hello_cnc/hardware_ch
 python examples/hello_cnc/hardware_check.py
 ```
 
-Once the hardware check passes, create your application from the starter example at `examples/liquid_handling/picus_pipette/` (a full worked example using a Sartorius Picus 2 pipette for serial dilution).
+Once the hardware check passes, create your application from the starter example at `examples/liquid_handling/` (a full worked example using a Sartorius Picus 2 pipette for serial dilution).
 
-1. **Copy the example** — copy `examples/liquid_handling/picus_pipette/` to a new repository or directory
+1. **Copy the example** — copy `examples/liquid_handling/` to a new repository or directory
 2. **Install cnc-4-science** — install as a dependency in your project's virtual environment:
 
    **Linux / macOS / Raspberry Pi:**
@@ -178,8 +178,8 @@ cnc-4-science (library, on PyPI)         Your Application (copied example)
 │   └── labware/        (labware JSON)      ├── tools/
 ├── examples/                                │   ├── cnc_config.yaml          (CNC + deck layout + Z heights)
 │   ├── hello_cnc/                          │   ├── picus_config.yaml        (tool: port, offset, volumes)
-│   └── liquid_handling/                     │   ├── picus_pipette.py         (tool wrapper)
-└── pyproject.toml                            │   └── picus_driver.py          (vendored low-level driver)
+│   └── liquid_handling/                    │   ├── picus_pipette.py         (tool wrapper)
+└── pyproject.toml                           │   └── picus_driver.py          (vendored low-level driver)
                                               └── requirements.txt  (`cnc-4-science`)
 ```
 
@@ -198,7 +198,7 @@ class MyTool:
         # extract parameters from tool_config["parameters"]
 ```
 
-See `examples/liquid_handling/picus_pipette/tools/picus_pipette.py` for a working reference implementation.
+See `examples/liquid_handling/tools/picus_pipette.py` for a working reference implementation.
 
 <h3>Advice on Integration with Scientific Instruments</h3>
 

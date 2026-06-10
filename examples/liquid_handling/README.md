@@ -46,7 +46,7 @@ Interactive: jogs Z at coarse/medium/fine steps, saves to `output/z_calibration.
 ## Directory layout
 
 ```
-picus_pipette/
+liquid_handling/
 ├── README.md
 ├── requirements.txt
 ├── z_helper.py                     # Z calibration helper (interactive)
@@ -67,7 +67,7 @@ picus_pipette/
 
 To adapt for a different tool or protocol:
 
-1. **Copy this folder.** Rename `picus_pipette/` to match your tool, e.g. `peristaltic_pump/`.
+1. **Copy this folder** to a new directory (e.g. `examples/peristaltic_pump/` or your own repo).
 2. **Replace the driver.** Drop your vendor driver into `tools/` (e.g. `pump_driver.py`) and write a thin wrapper (`tools/pump.py`) exposing the methods your protocol needs.
 3. **Add a tool config.** Create `tools/<tool>_config.yaml` with the tool's serial port, mounting offset, and any tool-specific parameters.
 4. **Edit `cnc_config.yaml`.** Update `deck:` slot roles + labware comments to match your deck. Calibrate Z heights with `z_helper.py`.
