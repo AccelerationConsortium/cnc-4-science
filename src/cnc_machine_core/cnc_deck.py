@@ -6,7 +6,9 @@ Works with Opentrons-format labware JSON definitions.
 Usage:
     from cnc_machine_core import Deck
 
-    deck = Deck()                                    # standard 4-slot deck
+    deck = Deck()                                    # default 4-slot deck
+    deck = Deck("cnc_1_slot_deck")                   # built-in by name
+    deck = Deck("path/to/custom_deck.json")          # custom path
     plate = deck.load_labware("1", "labware/my_labware.json")
     x, y, z = plate["A1"].position()                 # absolute CNC coordinates
     x, y, z = plate["A1"].position(offset={"x": 6.75, "y": -4.0})
@@ -18,7 +20,21 @@ Usage:
 import json
 import os
 
-_DEFAULT_DECK_PATH = os.path.join(os.path.dirname(__file__), "deck", "cnc_deck_definition.json")
+_DECK_DIR = os.path.join(os.path.dirname(__file__), "deck")
+DEFAULT_DECK = "cnc_4_slot_deck"
+
+
+def _resolve_deck_path(deck_definition):
+    """Resolve a deck argument to a JSON file path.
+
+    Accepts: None (default deck), a built-in deck name (e.g. "cnc_4_slot_deck"),
+    or a path to a custom JSON file.
+    """
+    if deck_definition is None:
+        return os.path.join(_DECK_DIR, f"{DEFAULT_DECK}.json")
+    if os.path.sep in deck_definition or deck_definition.endswith(".json"):
+        return deck_definition
+    return os.path.join(_DECK_DIR, f"{deck_definition}.json")
 
 
 class Well:
@@ -108,7 +124,7 @@ class Deck:
     """Standard CNC deck with slot-based labware management."""
 
     def __init__(self, deck_definition=None):
-        path = deck_definition or _DEFAULT_DECK_PATH
+        path = _resolve_deck_path(deck_definition)
         with open(path, "r", encoding="utf-8") as f:
             self._deck = json.load(f)
         self._labware = {}  # slot_id (str) -> Labware

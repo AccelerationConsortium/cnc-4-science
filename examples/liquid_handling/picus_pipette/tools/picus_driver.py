@@ -4,7 +4,7 @@ Speaks the line-based JSON command protocol over a serial port at 230400 baud.
 Works identically for USB-CDC (the pipette's Micro-USB port) and Bluetooth SPP.
 
 Usage:
-    from serial_dilution_demo.tools.picus import Picus2
+    from tools.picus_driver import Picus2
 
     with Picus2(port="COM3") as pip:
         pip.run_init()
@@ -27,18 +27,68 @@ from typing import Self
 
 import serial
 
-from .discovery import find_pipette_port
-from .protocol import BAUDRATE, RESULT_OK, TERMINATOR, build_command, classify_line
+
+# --- Wire protocol primitives ------------------------------------------------
+
+TERMINATOR = b"\r\n"
+BAUDRATE = 230400
+
+_ENVELOPE_TOKENS = frozenset({"ACK", "BEGIN", "END"})
+
+RESULT_OK = "OK"
+RESULT_CODES = frozenset(
+    {
+        "OK",
+        "FULL",
+        "SYNTAX_ERROR",
+        "ERROR_PARSING",
+        "UNKNOWN_COMMAND",
+        "MISSING_PARAMETERS",
+        "ERR_RANGE_PARAMETERS",
+        "CHK_ERROR",
+        "NOT_ALLOWED",
+        "FAILED",
+        "MOTOR_CONTROL_ABORTED",
+    }
+)
+
+
+def build_command(no: int, data: str, **extra: object) -> bytes:
+    """Build a CRLF-terminated JSON command frame."""
+    payload: dict[str, object] = {"no": no, "data": data}
+    payload.update(extra)
+    return json.dumps(payload, separators=(",", ":")).encode("ascii") + TERMINATOR
+
+
+def classify_line(line: str, expected_no: int) -> tuple[str, str | None]:
+    """Classify one received line into (kind, value)."""
+    stripped = line.strip()
+    if not stripped:
+        return ("ignore", None)
+    parts = stripped.split()
+    head = parts[0]
+    if head in _ENVELOPE_TOKENS:
+        return ("envelope", None)
+    if head in RESULT_CODES:
+        if len(parts) >= 2:
+            try:
+                no = int(parts[1])
+            except ValueError:
+                return ("response", stripped)
+            if no == expected_no:
+                return ("result", head)
+            return ("result_other", head)
+        return ("result", head)
+    return ("response", stripped)
+
+
+# --- Driver ------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
 
 
 class PicusError(Exception):
     """Base exception for the Picus 2 driver."""
-
-
-class PicusNotFoundError(PicusError):
-    """No Picus 2 USB serial port was found."""
 
 
 class PicusConnectionError(PicusError):
@@ -72,36 +122,28 @@ class Picus2:
 
     def __init__(
         self,
-        port: str | None = None,
+        port: str,
         *,
         baudrate: int = BAUDRATE,
         timeout: float = 0.2,
         command_timeout: float = 30.0,
         default_speed: int = 5,
     ) -> None:
-        self._port_arg = port
+        self._port = port
         self._baudrate = baudrate
         self._timeout = timeout
         self._command_timeout = command_timeout
         self._default_speed = _clamp_speed(default_speed)
         self._serial: serial.Serial | None = None
-        self._port: str | None = None
         self._counter = itertools.count(1)
         self._lock = threading.Lock()
 
     def open(self) -> None:
         if self._serial is not None:
             return
-        port = self._port_arg or find_pipette_port()
-        if port is None:
-            raise PicusNotFoundError(
-                "no Picus 2 pipette found on a USB serial port; "
-                "pass port= explicitly (e.g. for Bluetooth)"
-            )
-        self._port = port
         try:
             self._serial = serial.Serial(
-                port=port,
+                port=self._port,
                 baudrate=self._baudrate,
                 bytesize=serial.EIGHTBITS,
                 parity=serial.PARITY_NONE,
@@ -110,7 +152,7 @@ class Picus2:
                 write_timeout=1.0,
             )
         except serial.SerialException as e:
-            raise PicusConnectionError(f"could not open {port}: {e}") from e
+            raise PicusConnectionError(f"could not open {self._port}: {e}") from e
         try:
             self._serial.reset_input_buffer()
             self._send_raw("AUTO 1", timeout=2.0)
@@ -240,7 +282,7 @@ class Picus2:
                     response_lines.append(value)
 
     @property
-    def port(self) -> str | None:
+    def port(self) -> str:
         return self._port
 
     def run_init(self) -> None:

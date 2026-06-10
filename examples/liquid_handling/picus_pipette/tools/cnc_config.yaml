@@ -1,0 +1,45 @@
+# CNC machine + deck configuration.
+# Settings for the Genmitsu CNC controller (GRBL) and the deck layout used
+# by the protocols in this example.
+
+cnc:
+  com_port: COM4          # Windows: COMx; Linux/RPi: /dev/ttyUSB0
+  baud_rate: 115200
+  bounds:
+    x: [0, 280]
+    y: [0, 180]
+    z: [-37, 0]           # Z is negative-down; -37 is the deepest safe travel
+
+virtual: false            # true = no hardware required; logs G-code only.
+                          # Applies to all tools in the demo (CNC + pipette).
+
+move_speed: 1500          # mm/min for XY travel
+
+# Z heights for deck operations (mm, in machine coordinates).
+# Calibrate with z_helper.py.
+z_heights:
+  hover: 0.0              # Safe travel height above the deck
+  tip_pickup: -35.5       # Engages tip cone on the rack
+  reservoir: -36.5        # Aspirate height in reservoir wells
+  plate_aspirate: -36.5
+  plate_dispense: -36.5
+  waste_eject_offset: 10.0  # Lifts above tip_pickup before ejecting into waste
+
+tip_path_y_offset: 15.0   # Y offset used when approaching the tip rack
+
+# Deck layout for the 4-slot CNC deck.
+# Slot numbers follow Opentrons convention: 1=front-left, 2=front-right,
+# 3=back-left, 4=back-right. Must match deck_preset.yaml and the labware
+# loaded in the protocol.
+deck:
+  definition: cnc_4_slot_deck   # Built-in deck (see cnc_machine_core/deck/).
+                                # Use cnc_1_slot_deck for the open layout,
+                                # or a path to a custom JSON.
+  slots:
+    plate:     "1"   # corning_24_wellplate_3.4ml_flat  (dilution target)
+    tips:      "2"   # sartorius_24_tiprack_5000ul       (5000µL tips)
+    reservoir: "3"   # opentrons_tough_4_reservoir_72ml  (A1 stock, A2 diluent)
+    waste:     "4"   # sartorius_24_tiprack_5000ul       (tip waste)
+  reservoir_wells:
+    stock:   A1
+    diluent: A2

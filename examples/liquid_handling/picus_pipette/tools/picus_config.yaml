@@ -1,0 +1,27 @@
+# Sartorius Picus 2 pipette configuration.
+# Per-tool settings: serial connection, mounting offset, and pipetting volumes.
+# Deck layout, Z heights, and move speed live in cnc_config.yaml.
+
+toolId: picus_pipette
+displayName: Sartorius Picus 2 5000µL Pipette
+
+# Serial connection to the pipette (separate from the CNC serial port).
+# Baud rate (230400) is fixed by the Picus2 protocol; not configurable here.
+com_port: COM3            # Windows: COMx; Linux/RPi: /dev/ttyUSB1
+default_speed: 5          # Pipette aspirate/dispense speed setting
+
+# Tool mounting offset relative to the CNC spindle center (mm)
+offset:
+  x: 0.0
+  y: 0.0
+  z: 0.0
+
+# Pipetting volumes for the serial dilution protocol (µL)
+volumes:
+  prefill: 1100           # Per-well prefill volume for diluent
+  stock_multiplier: 3     # Stock aspiration = prefill * stock_multiplier
+  dilution_multiplier: 2  # Carry-over aspiration = prefill * dilution_multiplier
+  mix: 1200               # Mix stroke volume
+  mix_cycles: 3
+  tip_max: 5000           # Tip capacity; used to auto-cap batched aspirations
+  aspirate_batch_count: 6 # Max wells per Phase 1 prefill batch (auto-capped by tip_max)

@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.8.0 - 2026-06-10
+- **Deck definitions renamed and addressable by name**:
+  - `deck/cnc_deck_definition.json` → `deck/cnc_4_slot_deck.json` (deckId `cnc_4_slot_deck`).
+  - `deck/cnc_open.json` → `deck/cnc_1_slot_deck.json` (deckId `cnc_1_slot_deck`).
+  - `Deck(deck_definition)` now accepts a built-in name (`Deck("cnc_1_slot_deck")`) or a path. Default is unchanged (`cnc_4_slot_deck`).
+  - Example `tools/cnc_config.yaml` declares `deck.definition: cnc_4_slot_deck` so the deck choice is visible from config.
+- **Examples reorganized**: merged `templates/` and `examples/` into a single `examples/` tree. Removed legacy `liquid_handling_demo/`. `examples/startup/` renamed to `examples/hello_cnc/`.
+- **Liquid handling demo restructured** as a reusable template at `examples/liquid_handling/picus_pipette/`:
+  - Protocol moved to `protocols/serial_dilution_demo.py` (was `protocol.py` at root).
+  - Per-tool config split: CNC is now treated as just another tool. Configs live under `tools/`:
+    - `tools/cnc_config.yaml` — CNC machine, deck layout (slot→role), Z heights, virtual flag.
+    - `tools/picus_config.yaml` — pipette tool (port, offset, default_speed, volumes). Replaces the old `tool_definitions.json`.
+  - Consistent `picus_*` naming throughout: `tools/picus_pipette.py` (`PicusPipette` wrapper, was `SartoriusPipette`) and `tools/picus_driver.py` (vendored Picus 2 driver, was the `picus/` subpackage).
+  - Deck slot assignment moved into `cnc_config.yaml` under `deck:` so it's visible from config instead of buried in the protocol.
+- **New `CNC_Machine.from_config(path)` classmethod**: loads CNC port, baud, and bounds from a YAML config file. Accepts `**overrides` kwargs.
+- `hardware_check.py` and `z_helper.py` updated to use `CNC_Machine.from_config(...)` and the new per-tool config paths.
+- Z bounds in `z_helper.py` now derive from CNC config (`cnc.Z_LOW_BOUND` / `cnc.Z_HIGH_BOUND`) instead of hardcoded `-35..0`.
+
 ## 0.7.0 - 2026-06-09
 - **Distribution renamed**: PyPI package is now `cnc-4-science` (was `cnc-machine-core`). Import name `cnc_machine_core` is unchanged.
 - **Published to PyPI**: install with `pip install cnc-4-science`. Releases are automated via GitHub Actions on `v*` tags using PyPI Trusted Publisher (OIDC).

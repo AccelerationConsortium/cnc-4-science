@@ -12,8 +12,7 @@ dist/
 *.egg
 
 # Per-protocol runtime output (calibration files, deck state snapshots)
-liquid_handling_demo/**/output/
-templates/**/output/
+examples/**/output/
 
 # Editor / OS
 .vscode/

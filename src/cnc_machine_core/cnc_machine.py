@@ -20,7 +20,7 @@ class CNC_Machine:
         x_high_bound=280,
         y_low_bound=0,
         y_high_bound=180,
-        z_low_bound=-35,
+        z_low_bound=-37,
         z_high_bound=0,
         virtual=False,
         locations_file=None,
@@ -77,6 +77,45 @@ class CNC_Machine:
         except Exception as e:
             self.logger.exception("Failed to load YAML '%s': %s", file_in, e)
             return {}
+
+    @classmethod
+    def from_config(cls, config_path, **overrides):
+        """Construct a CNC_Machine from a YAML config file.
+
+        Expected schema (all fields optional except cnc.com_port):
+            cnc:
+              com_port: COM4
+              baud_rate: 115200
+              bounds:
+                x: [0, 280]
+                y: [0, 180]
+                z: [-37, 0]
+            virtual: false
+            locations_file: location_status.yaml
+
+        Extra kwargs override values from the file.
+        """
+        with open(config_path, "r", encoding="utf-8") as f:
+            cfg = yaml.safe_load(f) or {}
+        cnc_cfg = cfg.get("cnc", {})
+        bounds = cnc_cfg.get("bounds", {})
+        x_lo, x_hi = bounds.get("x", [0, 280])
+        y_lo, y_hi = bounds.get("y", [0, 180])
+        z_lo, z_hi = bounds.get("z", [-37, 0])
+        kwargs = {
+            "com": cnc_cfg.get("com_port"),
+            "baud_rate": cnc_cfg.get("baud_rate", 115200),
+            "x_low_bound": x_lo,
+            "x_high_bound": x_hi,
+            "y_low_bound": y_lo,
+            "y_high_bound": y_hi,
+            "z_low_bound": z_lo,
+            "z_high_bound": z_hi,
+            "virtual": cfg.get("virtual", False),
+            "locations_file": cfg.get("locations_file"),
+        }
+        kwargs.update(overrides)
+        return cls(**kwargs)
 
     def connect(self):
         if self.VIRTUAL:

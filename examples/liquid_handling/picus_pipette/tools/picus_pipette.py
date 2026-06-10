@@ -1,14 +1,16 @@
-"""Sartorius Picus 2 pipette tool — thin wrapper around the vendored picus driver.
+"""Picus 2 pipette tool — thin wrapper around the vendored low-level driver.
 
-Adds a ``virtual`` flag for dry-runs and a stable API for protocols.
+Adds a ``virtual`` flag for dry-runs and a stable API for protocols. The
+underlying ``Picus2`` driver (Sartorius Picus 2 model) lives in
+``picus_driver.py``.
 """
 
 from __future__ import annotations
 
-from .picus import Picus2
+from .picus_driver import Picus2
 
 
-class SartoriusPipette:
+class PicusPipette:
     """Thin wrapper around Picus2 with optional virtual mode."""
 
     def __init__(self, com_port: str | None = None, virtual: bool = False, default_speed: int = 5):

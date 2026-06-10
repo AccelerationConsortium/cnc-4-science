@@ -1,22 +1,18 @@
 """1:2 serial dilution across a 24-well plate.
 
-Deck layout:
-    Slot 1 (front-left) : corning_24_wellplate_3.4ml_flat   – dilution target
-    Slot 2 (front-right): custom_tiprack_5000ul             – 5000µL tips
-    Slot 3 (back-left)  : opentrons_tough_4_reservoir_72ml  – A1 red stock, A2 diluent
-    Slot 4 (back-right) : custom_tiprack_5000ul             – tip waste
+Deck layout, Z heights, and CNC settings are loaded from tools/cnc_config.yaml.
+Pipette settings (port, offset, volumes) come from tools/picus_config.yaml.
 
 Workflow:
     Phase 1 — Prefill:
-        Pick up tip, prefill 23 wells (A1 reserved for stock) with 1.5mL diluent
-        from reservoir A2, then discard tip.
+        Pick up tip, prefill 23 wells (A1 reserved for stock) with diluent
+        from the reservoir's diluent well (batched aspirations), then discard tip.
     Phase 2 — Dilution:
-        Pick up new tip, transfer stock from reservoir A1 to plate A1, then run
-        1:2 serial dilution column-by-column (A1→B1→C1→D1→A2→…→D6) with mixing
-        between each step. Discard tip at end.
+        Pick up new tip, transfer stock from the reservoir's stock well to plate
+        A1, then run serial dilution column-by-column (A1→B1→C1→D1→A2→…→D6)
+        with mixing between each step. Discard tip at end.
 """
 
-import json
 import logging
 import sys
 from pathlib import Path
@@ -25,64 +21,62 @@ import yaml
 from cnc_machine_core import CNC_Machine, Deck, DeckState
 from opentrons_shared_data.labware import load_definition
 
-# Make sibling `tools/` package importable when run as `python protocol.py`
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+# Make sibling `tools/` package importable when run as a script
+DEMO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(DEMO_ROOT))
 
-from tools.sartorius_pipette import SartoriusPipette  # noqa: E402
+from tools.picus_pipette import PicusPipette  # noqa: E402
 
-# --- Configuration ---
+# --- Paths ---
+TOOLS_DIR = DEMO_ROOT / "tools"
+CNC_CONFIG_PATH = TOOLS_DIR / "cnc_config.yaml"
+PIPETTE_CONFIG_PATH = TOOLS_DIR / "picus_config.yaml"
+PRESET_PATH = DEMO_ROOT / "deck_preset.yaml"
+STATE_OUTPUT = DEMO_ROOT / "output" / "deck_state.yaml"
+TIPRACK_PATH = DEMO_ROOT / "custom_labware" / "sartorius_24_tiprack_5000ul.json"
 
-COM_PORT_CNC = "COM4"
-COM_PORT_PIPETTE = "COM3"
-VIRTUAL = False
-MOVE_SPEED = 1500
 
-# Calibrated Z heights (CNC absolute coordinates)
-Z_HOVER = 0.0  # safe travel height above all labware
-Z_TIP_PICKUP = -35.0  # press down to engage tip on pipette
-Z_WASTE_EJECT = Z_TIP_PICKUP + 10.0  # height above waste bin for tip ejection
-Z_RESERVOIR = -35.0  # depth into reservoir for aspiration
-Z_PLATE_ASPIRATE = -35.0  # depth into 24-well plate for aspiration
-Z_PLATE_DISPENSE = -35.0  # just above plate well for dispensing
-TIP_PATH_Y_OFFSET = 15.0  # mm Y offset for yxy orthogonal tip moves
+# --- Load configs ---
+with open(CNC_CONFIG_PATH, "r", encoding="utf-8") as _f:
+    CNC_CFG = yaml.safe_load(_f)
+with open(PIPETTE_CONFIG_PATH, "r", encoding="utf-8") as _f:
+    PIPETTE_CFG = yaml.safe_load(_f)
 
-# Volumes (µL)
-PREFILL_VOLUME = 1250  # 1.25mL diluent prefilled into wells 2..24
-STOCK_VOLUME = PREFILL_VOLUME * 2  # initial stock load into plate A1
-DILUTION_VOLUME = 1250  # transferred between wells for 1:2 dilution
-MIX_VOLUME = 1250  # aspirate/dispense volume during mixing
-MIX_CYCLES = 3
+VIRTUAL = CNC_CFG.get("virtual", False)
+MOVE_SPEED = CNC_CFG.get("move_speed", 1500)
 
-# Paths — everything is colocated with this script (flat layout)
-BASE_PATH = Path(__file__).resolve().parent
-CUSTOM_LABWARE_DIR = BASE_PATH / "custom_labware"
-TOOLS_PATH = BASE_PATH / "tool_definitions.json"
-PRESET_PATH = BASE_PATH / "deck_preset.yaml"
-STATE_OUTPUT = BASE_PATH / "output" / "deck_state.yaml"
+_Z = CNC_CFG["z_heights"]
+Z_HOVER = _Z["hover"]
+Z_TIP_PICKUP = _Z["tip_pickup"]
+Z_WASTE_EJECT = Z_TIP_PICKUP + _Z.get("waste_eject_offset", 10.0)
+Z_RESERVOIR = _Z["reservoir"]
+Z_PLATE_ASPIRATE = _Z["plate_aspirate"]
+Z_PLATE_DISPENSE = _Z["plate_dispense"]
+TIP_PATH_Y_OFFSET = CNC_CFG.get("tip_path_y_offset", 15.0)
 
-TIPRACK_PATH = CUSTOM_LABWARE_DIR / "sartorius_24_tiprack_5000ul.json"
+_V = PIPETTE_CFG["volumes"]
+PREFILL_VOLUME = _V["prefill"]
+STOCK_VOLUME = PREFILL_VOLUME * _V.get("stock_multiplier", 3)
+DILUTION_VOLUME = PREFILL_VOLUME * _V.get("dilution_multiplier", 2)
+MIX_VOLUME = _V["mix"]
+MIX_CYCLES = _V["mix_cycles"]
+TIP_MAX_VOLUME = _V.get("tip_max", 5000)
+ASPIRATE_BATCH_COUNT = _V.get("aspirate_batch_count", 6)
 
-# Slot assignments
-SLOT_PLATE = "1"
-SLOT_TIPS = "2"
-SLOT_RESERVOIR = "3"
-SLOT_WASTE = "4"
-
-# Reservoir well assignments
-RES_STOCK_WELL = "A1"
-RES_DILUENT_WELL = "A2"
+# Deck layout (from cnc_config.yaml; must match deck_preset.yaml)
+_DECK = CNC_CFG["deck"]
+DECK_DEFINITION = _DECK.get("definition")  # built-in name or path; None = default
+_SLOTS = _DECK["slots"]
+SLOT_PLATE = _SLOTS["plate"]
+SLOT_TIPS = _SLOTS["tips"]
+SLOT_RESERVOIR = _SLOTS["reservoir"]
+SLOT_WASTE = _SLOTS["waste"]
+_RES = _DECK["reservoir_wells"]
+RES_STOCK_WELL = _RES["stock"]
+RES_DILUENT_WELL = _RES["diluent"]
 
 
 # ---------------------------------------------------------------- helpers
-
-
-def load_tool_config(tool_id):
-    with open(TOOLS_PATH, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    for tool in data["tools"]:
-        if tool["toolId"] == tool_id:
-            return tool
-    raise KeyError(f"Tool '{tool_id}' not found in {TOOLS_PATH}")
 
 
 def _xy(deck, slot, well, offset):
@@ -258,7 +252,7 @@ def transfer(
 
 def run():
     # Load deck and labware
-    deck = Deck()
+    deck = Deck(DECK_DEFINITION)
     deck.load_labware_definition(
         SLOT_PLATE, load_definition("corning_24_wellplate_3.4ml_flat", version=1)
     )
@@ -279,19 +273,18 @@ def run():
     state = DeckState(state_file=str(STATE_OUTPUT))
     state.init_from_preset(preset)
 
-    # Tool config
-    pipette_config = load_tool_config("sartorius_pipette")
-    pipette_offset = pipette_config.get("offset", {"x": 0, "y": 0, "z": 0})
+    # Pipette mounting offset (from picus_config.yaml)
+    pipette_offset = PIPETTE_CFG.get("offset", {"x": 0, "y": 0, "z": 0})
 
     # Initialize hardware
-    cnc = CNC_Machine(com=COM_PORT_CNC, virtual=VIRTUAL, log_level=logging.INFO)
+    cnc = CNC_Machine.from_config(CNC_CONFIG_PATH, log_level=logging.INFO)
     cnc.connect()
     cnc.home()
 
-    pipette = SartoriusPipette(
-        com_port=pipette_config.get("com_port", COM_PORT_PIPETTE),
+    pipette = PicusPipette(
+        com_port=PIPETTE_CFG["com_port"],
         virtual=VIRTUAL,
-        default_speed=pipette_config.get("default_speed", 5),
+        default_speed=PIPETTE_CFG.get("default_speed", 5),
     )
     pipette.connect()
 
@@ -305,25 +298,65 @@ def run():
     print("=" * 60)
 
     try:
-        # --- Phase 1: Prefill 23 wells with diluent --------------------
+        # --- Phase 1: Prefill 23 wells with diluent (batched aspirations) ----------
         print(f"\n[Phase 1] Prefill 23 wells with {PREFILL_VOLUME}µL diluent")
         pick_up_next_tip(cnc, pipette, deck, state, pipette_offset)
-        for well in well_order[1:]:
-            print(f"  prefill -> Slot{SLOT_PLATE}/{well}")
-            transfer(
+        wells_to_fill = well_order[1:]  # skip A1 (reserved for stock)
+        batch_well_count = max(
+            1,
+            min(ASPIRATE_BATCH_COUNT, TIP_MAX_VOLUME // PREFILL_VOLUME),
+        )
+        tip_volume_ul = 0
+        for i in range(0, len(wells_to_fill), batch_well_count):
+            batch = wells_to_fill[i : i + batch_well_count]
+            batch_aspirate_volume = PREFILL_VOLUME * len(batch)
+            aspirate_at(
                 cnc,
                 pipette,
                 deck,
                 SLOT_RESERVOIR,
                 RES_DILUENT_WELL,
+                batch_aspirate_volume,
                 Z_RESERVOIR,
-                SLOT_PLATE,
-                well,
-                Z_PLATE_DISPENSE,
-                PREFILL_VOLUME,
                 pipette_offset,
             )
-            state.set_status(SLOT_PLATE, well, "filled")
+            tip_volume_ul += batch_aspirate_volume
+            # Dispense to each well in batch
+            for well in batch:
+                print(f"  prefill -> Slot{SLOT_PLATE}/{well}")
+                dispense_at(
+                    cnc,
+                    pipette,
+                    deck,
+                    SLOT_PLATE,
+                    well,
+                    PREFILL_VOLUME,
+                    Z_PLATE_DISPENSE,
+                    pipette_offset,
+                )
+                state.set_status(SLOT_PLATE, well, "filled")
+                tip_volume_ul -= PREFILL_VOLUME
+
+        if tip_volume_ul > 0:
+            print(
+                f"  return_residual -> Slot{SLOT_RESERVOIR}/{RES_DILUENT_WELL} ({tip_volume_ul}µL)"
+            )
+            dispense_at(
+                cnc,
+                pipette,
+                deck,
+                SLOT_RESERVOIR,
+                RES_DILUENT_WELL,
+                tip_volume_ul,
+                Z_RESERVOIR,
+                pipette_offset,
+            )
+            if hasattr(pipette, "blow_out"):
+                x, y = _xy(deck, SLOT_RESERVOIR, RES_DILUENT_WELL, pipette_offset)
+                cnc.move_to_point_safe(x, y, Z_HOVER, speed=MOVE_SPEED)
+                cnc.move_to_point_safe(x, y, Z_RESERVOIR, speed=MOVE_SPEED)
+                pipette.blow_out()
+                cnc.move_to_point_safe(x, y, Z_HOVER, speed=MOVE_SPEED)
         discard_tip(cnc, pipette, deck, state, pipette_offset)
 
         # --- Phase 2: Load stock, then serial dilute ------------------
@@ -389,4 +422,3 @@ def run():
 
 if __name__ == "__main__":
     run()
-

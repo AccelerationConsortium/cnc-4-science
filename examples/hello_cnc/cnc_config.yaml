@@ -1,0 +1,12 @@
+# CNC machine configuration for hardware sanity check.
+# Edit COM port and bounds to match your hardware before running.
+
+cnc:
+  com_port: COM4
+  baud_rate: 115200
+  bounds:
+    x: [0, 280]
+    y: [0, 180]
+    z: [-37, 0]
+
+virtual: false

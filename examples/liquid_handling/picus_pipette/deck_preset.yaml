@@ -29,12 +29,12 @@
   C6: empty
   D6: empty
 '2':
-  A1: tip
-  B1: tip
-  C1: tip
-  A2: tip
-  B2: tip
-  C2: tip
+  A1: empty
+  B1: empty
+  C1: empty
+  A2: empty
+  B2: empty
+  C2: empty
   A3: tip
   B3: tip
   C3: tip
@@ -59,12 +59,12 @@
   A3: empty
   A4: empty
 '4':
-  A1: empty
-  B1: empty
-  C1: empty
-  A2: empty
-  B2: empty
-  C2: empty
+  A1: tip
+  B1: tip
+  C1: tip
+  A2: tip
+  B2: tip
+  C2: tip
   A3: empty
   B3: empty
   C3: empty

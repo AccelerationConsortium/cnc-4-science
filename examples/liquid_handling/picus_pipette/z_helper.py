@@ -15,7 +15,6 @@ Usage:
     python z_helper.py
 """
 
-import json
 import logging
 import yaml
 from pathlib import Path
@@ -25,9 +24,8 @@ from cnc_machine_core import Deck
 from opentrons_shared_data.labware import load_definition
 
 # --- Configuration ---
-
-COM_PORT = "COM4"
-VIRTUAL = False  # set False for real hardware
+# CNC connection + bounds + deck slots come from tools/cnc_config.yaml.
+# Pipette tool offset comes from tools/picus_config.yaml.
 
 STEP_COARSE = 2.0
 STEP_MEDIUM = 0.5
@@ -35,7 +33,9 @@ STEP_FINE = 0.1
 
 # Paths — everything is colocated with this script (flat layout)
 BASE_PATH = Path(__file__).resolve().parent
-TOOLS_PATH = BASE_PATH / "tool_definitions.json"
+TOOLS_DIR = BASE_PATH / "tools"
+CNC_CONFIG_PATH = TOOLS_DIR / "cnc_config.yaml"
+PIPETTE_CONFIG_PATH = TOOLS_DIR / "picus_config.yaml"
 CALIBRATION_FILE = BASE_PATH / "output" / "z_calibration.yaml"
 TIPRACK_PATH = BASE_PATH / "custom_labware" / "sartorius_24_tiprack_5000ul.json"
 
@@ -55,9 +55,16 @@ LABWARE_DEFINITIONS = {
 
 
 def load_tools():
-    with open(TOOLS_PATH, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    return {t["toolId"]: t["offset"] for t in data["tools"]}
+    """Return {tool_id: offset_dict} for all tool config files in tools/."""
+    tools = {}
+    for cfg_path in sorted(TOOLS_DIR.glob("*_config.yaml")):
+        if cfg_path.name == "cnc_config.yaml":
+            continue  # CNC is the carrier, not a pipetting tool
+        with cfg_path.open("r", encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+        tool_id = data.get("toolId") or cfg_path.stem.replace("_config", "")
+        tools[tool_id] = data.get("offset", {"x": 0, "y": 0, "z": 0})
+    return tools
 
 
 def load_calibration():
@@ -138,11 +145,7 @@ def run():
     x, y, _ = plate[well_name].position(offset=tool_offset)
     print(f"\nTarget: Slot {slot_id} {well_name} + {tool_label} -> X{x:.2f} Y{y:.2f}")
 
-    cnc = CNC_Machine(
-        com=COM_PORT,
-        virtual=VIRTUAL,
-        log_level=logging.INFO,
-    )
+    cnc = CNC_Machine.from_config(CNC_CONFIG_PATH, log_level=logging.INFO)
     cnc.connect()
     cnc.home()
 
@@ -189,8 +192,8 @@ def run():
                 print("  Unknown command")
                 continue
 
-            current_z = max(current_z, -35.0)
-            current_z = min(current_z, 0.0)
+            current_z = max(current_z, cnc.Z_LOW_BOUND)
+            current_z = min(current_z, cnc.Z_HIGH_BOUND)
             cnc.move_to_point(z=current_z, speed=500)
             print(f"  -> Z={current_z:.2f}")
 
@@ -201,4 +204,5 @@ def run():
         print("Done.")
 
 
-run()
+if __name__ == "__main__":
+    run()

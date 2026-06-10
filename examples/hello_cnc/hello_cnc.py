@@ -1,14 +1,20 @@
-from cnc_machine_core import CNC_Machine
-
 """Hardware sanity check — run this first after physically setting up the machine.
 
 Verifies serial connection, homing, basic moves, and spindle control.
-Update COM port and bounds to match your setup before running.
+Edit cnc_config.yaml in this folder (COM port, bounds) before running.
 
 Usage:
-    python hardware_check.py
+    python hello_cnc.py
 """
-m = CNC_Machine(com="COM4", virtual=False, locations_file="location_status.yaml")
+
+from pathlib import Path
+
+from cnc_machine_core import CNC_Machine
+
+CONFIG_PATH = Path(__file__).resolve().parent / "cnc_config.yaml"
+LOCATIONS_FILE = Path(__file__).resolve().parent / "location_status.yaml"
+
+m = CNC_Machine.from_config(CONFIG_PATH, locations_file=str(LOCATIONS_FILE))
 
 m.connect()  # open persistent connection (optional)
 m.home()  # Home the CNC Machine

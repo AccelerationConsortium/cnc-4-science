@@ -13,7 +13,7 @@ Install from PyPI:
 pip install cnc-4-science
 ```
 
-Then import `cnc_machine_core` and use its methods to intuitively and seamlessly move the CNC machine with whatever scientific tools you want to incorporate. See `templates/serial_dilution_demo/` for a full worked example.
+Then import `cnc_machine_core` and use its methods to intuitively and seamlessly move the CNC machine with whatever scientific tools you want to incorporate. See `examples/liquid_handling/picus_pipette/` for a full worked example.
 
 <h3>Basic Functions:</h3>
 
@@ -67,9 +67,9 @@ for well in plate.wells():                           # iterate in ordering
     print(well.name, well.position())
 ```
 
-Alternative deck layouts are in `deck/`:
-- `cnc_deck_definition.json` — standard 4-slot (2×2)
-- `cnc_open.json` — single slot at origin (open deck, no labware required)
+Alternative deck layouts are in `deck/` (pass by name or path):
+- `cnc_4_slot_deck.json` — standard 4-slot (2×2) **[default]**
+- `cnc_1_slot_deck.json` — single slot at origin (open deck, no labware required)
 
 Labware definitions are created using the [Opentrons Labware Creator](https://labware.opentrons.com/#/create). Only the X and Y well coordinates from the Opentrons JSON are used. Z heights are defined per-protocol as calibrated constants, since Z depends on the specific tool and labware combination rather than the labware geometry alone.
 
@@ -82,7 +82,7 @@ For simpler setups that don't need labware definitions, use the open deck and mo
 ```python
 from cnc_machine_core import Deck
 
-deck = Deck(deck_definition="deck/cnc_open.json")
+deck = Deck("cnc_1_slot_deck")           # built-in name; or pass a path to custom JSON
 # No labware needed — move to raw coordinates
 cnc.move_to_point_safe(x=100, y=50, z=-20)
 ```
@@ -106,7 +106,7 @@ The location index moves through a full column before advancing to the next. Ind
 
 <h3>Z Calibration Helper</h3>
 
-A Z calibration script is included at `templates/serial_dilution_demo/z_helper.py`. It moves the CNC to a selected slot/well (with tool offset applied), then lets the user step Z up and down at three granularity levels (coarse, medium, fine) to find the correct working height. This is much faster than manually jogging and reading coordinates. Copy it into your own application and update the deck/labware/tool configuration for your setup.
+A Z calibration script is included at `examples/liquid_handling/picus_pipette/z_helper.py`. It moves the CNC to a selected slot/well (with tool offset applied), then lets the user step Z up and down at three granularity levels (coarse, medium, fine) to find the correct working height. This is much faster than manually jogging and reading coordinates. Copy it into your own application and update the deck/labware/tool configuration for your setup.
 
 <h3>Deck State</h3>
 
@@ -125,22 +125,22 @@ ds.summary()                                         # print slot breakdown
 ```
 
 Status strings are application-defined — use whatever makes sense for your workflow.
-A sample preset is in `templates/serial_dilution_demo/deck_preset.yaml`.
+A sample preset is in `examples/liquid_handling/picus_pipette/deck_preset.yaml`.
 
 <h3>Starting a New Application</h3>
 
-After physically setting up the CNC machine, run `examples/startup/hardware_check.py` as a sanity check to verify the serial connection, homing, movement, and spindle all work correctly. Update the COM port and axis bounds in the script to match your setup before running:
+After physically setting up the CNC machine, run `examples/hello_cnc/hardware_check.py` as a sanity check to verify the serial connection, homing, movement, and spindle all work correctly. Edit `examples/hello_cnc/cnc_config.yaml` to match your COM port and bounds before running:
 
 ```bash
-python examples/startup/hardware_check.py
+python examples/hello_cnc/hardware_check.py
 ```
 
-Once the hardware check passes, create your application from the starter template at `templates/serial_dilution_demo/` (a full worked example using a Sartorius Picus 2 pipette for 1:2 serial dilution).
+Once the hardware check passes, create your application from the starter example at `examples/liquid_handling/picus_pipette/` (a full worked example using a Sartorius Picus 2 pipette for serial dilution).
 
-1. **Copy the template** — copy `templates/serial_dilution_demo/` to a new repository or directory
+1. **Copy the example** — copy `examples/liquid_handling/picus_pipette/` to a new repository or directory
 2. **Install cnc-4-science** — install as a dependency in your project's virtual environment:
 
-   **Linux / macOS:**
+   **Linux / macOS / Raspberry Pi:**
    ```bash
    python3 -m venv .venv
    source .venv/bin/activate
@@ -159,26 +159,28 @@ Once the hardware check passes, create your application from the starter templat
    pip install -e path/to/cnc-machine
    ```
 
-3. **Add your labware** — place custom labware JSON files in `custom_labware/`, or load standard Opentrons labware via `opentrons_shared_data.labware.load_definition(...)`
-4. **Configure slots** — edit the `deck.load_labware*` calls in your protocol to map slots to labware
-5. **Calibrate tool offsets** — measure and update `tool_definitions.json` with real x/y/z offsets
-6. **Calibrate Z heights** — run `python z_helper.py` to find working Z for each tool + labware combo
-7. **Validate** — set `VIRTUAL = True` in `protocol.py` for a dry run, then on hardware
-8. **Implement tools** — use `tools/sartorius_pipette.py` as a pattern for wrapping new tools
+3. **Configure your CNC** — edit `tools/cnc_config.yaml` (COM port, baud, bounds). Then load it in your script with `CNC_Machine.from_config("tools/cnc_config.yaml")`
+4. **Add your labware** — place custom labware JSON files in `custom_labware/`, or load standard Opentrons labware via `opentrons_shared_data.labware.load_definition(...)`
+5. **Configure each tool** — create `tools/<tool>_config.yaml` per pipette/effector with COM port, mounting offset, Z heights, and any tool-specific parameters
+6. **Calibrate Z heights** — run `python z_helper.py` to find working Z for each tool + labware combo; copy results into the tool's `<tool>_config.yaml`
+7. **Validate** — set `virtual: true` in `tools/cnc_config.yaml` for a dry run, then on hardware
+8. **Implement tools** — use `tools/picus_pipette.py` as a pattern for wrapping new tools
 
 <h4>Architecture</h4>
 
 ```
-cnc-4-science (library, on PyPI)         Your Application (copied template)
-├── src/cnc_machine_core/                  ├── protocol.py
-│   ├── cnc_machine.py  (motion)            ├── z_helper.py
-│   ├── cnc_deck.py     (deck/wells)        ├── tool_definitions.json
+cnc-4-science (library, on PyPI)         Your Application (copied example)
+├── src/cnc_machine_core/                  ├── protocols/
+│   ├── cnc_machine.py  (motion)            │   └── serial_dilution_demo.py
+│   ├── cnc_deck.py     (deck/wells)        ├── z_helper.py
 │   ├── deck_state.py   (state)             ├── deck_preset.yaml
-│   ├── deck/           (definitions)        ├── custom_labware/
-│   └── labware/        (labware JSON)       ├── tools/
-├── templates/                              │   └── your_tool.py
-│   └── serial_dilution_demo/               └── requirements.txt  (`cnc-4-science`)
-└── pyproject.toml
+│   ├── deck/           (definitions)       ├── custom_labware/
+│   └── labware/        (labware JSON)      ├── tools/
+├── examples/                                │   ├── cnc_config.yaml          (CNC + deck layout + Z heights)
+│   ├── hello_cnc/                          │   ├── picus_config.yaml        (tool: port, offset, volumes)
+│   └── liquid_handling/                     │   ├── picus_pipette.py         (tool wrapper)
+└── pyproject.toml                            │   └── picus_driver.py          (vendored low-level driver)
+                                              └── requirements.txt  (`cnc-4-science`)
 ```
 
 - **Library** owns: machine control, deck/labware primitives, standard definitions
@@ -196,7 +198,7 @@ class MyTool:
         # extract parameters from tool_config["parameters"]
 ```
 
-See `templates/serial_dilution_demo/tools/sartorius_pipette.py` for a working reference implementation.
+See `examples/liquid_handling/picus_pipette/tools/picus_pipette.py` for a working reference implementation.
 
 <h3>Advice on Integration with Scientific Instruments</h3>
 
