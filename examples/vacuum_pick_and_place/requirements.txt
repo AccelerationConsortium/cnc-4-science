@@ -1,2 +1,5 @@
 cnc-4-science
 pyyaml
+# Optional — only needed for the web frontend (web/app.py).
+fastapi
+uvicorn[standard]

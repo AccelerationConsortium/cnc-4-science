@@ -66,6 +66,33 @@ during play:
 Deck state is auto-saved to `output/deck_state.yaml` after every move, so
 a crashed game resumes from the last known state.
 
+## Run (web frontend, optional)
+
+A lightweight browser UI is included for the same game. It shares the same
+[`GameSession`](game_session.py) object as the CLI — same lock, same hardware
+handles, same state machine — so you cannot accidentally drive the gantry
+from both at once.
+
+```bash
+pip install -r requirements.txt
+cd examples/vacuum_pick_and_place
+uvicorn web.app:app --host 0.0.0.0 --port 8000
+```
+
+Then open <http://localhost:8000/>. The page has:
+
+- A 3×3 clickable board with X/O styling.
+- Mode / difficulty / symbol selectors that mirror the CLI prompts.
+- A `Reset Board` button (returns every piece to storage on hardware).
+- An optional video panel — paste a YouTube URL (or any embeddable stream) to
+  watch the CNC while you play.
+- An API debug log showing every request, response, status, and latency.
+
+The server homes the CNC on startup and parks it at the origin on shutdown.
+`virtual: true` in `tools/cnc_config.yaml` works exactly the same way — the
+browser still drives the full game loop, just without any actual motion.
+
+
 ## Calibrate Z heights
 
 The shipped values (`pick: -21.0`, `place: -19.0`) are calibrated for one
@@ -92,8 +119,16 @@ vacuum_pick_and_place/
 ├── README.md
 ├── requirements.txt
 ├── game_logic.py                       # board + AI (pure Python, no CNC)
+├── game_session.py                     # shared state machine (CLI + web)
+├── app_runtime.py                      # config loading + CNC/gripper bootstrap
 ├── protocols/
-│   └── tic_tac_toe.py                  # the CLI protocol (main entry point)
+│   └── tic_tac_toe.py                  # CLI entry point (thin loop over GameSession)
+├── web/
+│   ├── app.py                          # FastAPI: /api/state | /start | /move | /reset
+│   └── static/
+│       ├── index.html
+│       ├── game.js
+│       └── style.css
 ├── tools/
 │   ├── cnc_config.yaml                 # CNC + deck layout + Z heights
 │   ├── vacuum_config.yaml              # vacuum: RPM, delays, offset
@@ -118,5 +153,7 @@ To adapt for a different vacuum/spindle-switched tool:
    (RPM / PWM duty), any settle delays, and the XY/Z mount offset.
 4. **Edit `cnc_config.yaml`.** Update `deck:` slot roles + labware comments
    to match your deck. Recalibrate Z with `z_helper.py`.
-5. **Write your protocol** in `protocols/`. The `pick_and_place()` helper in
-   [tic_tac_toe.py](protocols/tic_tac_toe.py) is a one-screen reference.
+5. **Write your protocol** in `protocols/`. The `_pick_and_place()` helper in
+   [game_session.py](game_session.py) is a one-screen reference. If you also
+   want a web UI, copy [web/app.py](web/app.py) — the FastAPI layer is
+   ~100 lines and reuses whatever ``GameSession``-style state machine you build.
