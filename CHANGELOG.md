@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.1 - 2026-06-11
+- **Docs**: added [`docs/SETUP.md`](docs/SETUP.md) — end-to-end walkthrough for new applications (deck definition → labware sourcing options → toolhead driver/wrapper → XY/Z offset measurement → Z calibration → protocol → dry-run). Linked from README quickstart.
+  - Prerequisites now explicitly call out that `bounds:` is CNC-model-specific (shipped configs target the Genmitsu 3018) and recommend verifying real travel with a GRBL UI like [Candle](https://docs.sainsmart.com/article/bj9o96wcbc-how-to-set-up-use-candle-for-multiple-operations) before editing `cnc_config.yaml`.
+  - Reworded the Z-from-labware-is-ignored rationale: too many independently-variable terms (deck shim, labware seating, tool mount, tip length) to maintain four agreeing calibrations, so we collapse to one empirical Z per (tool, labware, action) via `z_helper.py`.
+
 ## 0.8.0 - 2026-06-10
 - **Deck definitions renamed and addressable by name**:
   - `deck/cnc_deck_definition.json` → `deck/cnc_4_slot_deck.json` (deckId `cnc_4_slot_deck`).

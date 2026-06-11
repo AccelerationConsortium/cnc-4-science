@@ -15,6 +15,11 @@ pip install cnc-4-science
 
 Then import `cnc_machine_core` and use its methods to intuitively and seamlessly move the CNC machine with whatever scientific tools you want to incorporate. See `examples/liquid_handling/` for a full worked example.
 
+> **New to the library?** Read [docs/SETUP.md](docs/SETUP.md) for a step-by-step
+> walkthrough of building a new application: deck → labware → toolhead/driver →
+> tool offsets → Z calibration → protocol. The section below is the quick API
+> reference; SETUP.md is the long-form how-to.
+
 <h3>Basic Functions:</h3>
 
 - Home CNC machine
