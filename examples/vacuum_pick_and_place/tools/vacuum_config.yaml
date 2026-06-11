@@ -1,0 +1,26 @@
+# Vacuum gripper tool configuration.
+# Unlike the Picus pipette, this tool does NOT have its own serial port —
+# the vacuum pump is wired into the CNC controller's spindle output and driven
+# via GRBL M3/M5 (spindle on/off) commands. The tool wrapper therefore takes
+# the CNC_Machine reference instead of a com_port. See tools/vacuum_gripper.py.
+
+toolId: vacuum_gripper
+displayName: Vacuum Pick-and-Place Gripper
+
+# Tool mounting offset relative to the CNC spindle center (mm).
+# Vacuum nozzle is mounted in the spindle collet for this build, so offset = 0.
+# If you mount the nozzle off to the side, measure per docs/SETUP.md §3.3.
+offset:
+  x: 0.0
+  y: 0.0
+  z: 0.0
+
+# Vacuum "intensity" maps to spindle RPM (M3 S<rpm>). The pump only cares about
+# on/off, but GRBL needs a non-zero S value to turn the spindle output on.
+vacuum_rpm: 2500
+
+# Settle times after toggling the vacuum, before the next motion.
+# grip_delay  — vacuum on, wait for suction to develop, then lift
+# place_delay — vacuum off, wait for piece to release, then lift
+grip_delay_s: 0.5
+place_delay_s: 3.5

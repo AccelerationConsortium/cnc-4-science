@@ -1,0 +1,23 @@
+'1':
+  A1: O_piece
+  B1: O_piece
+  C1: O_piece
+  A2: O_piece
+  B2: O_piece
+  C2: O_piece
+  A4: X_piece
+  B4: X_piece
+  C4: X_piece
+  A5: X_piece
+  B5: X_piece
+  C5: X_piece
+'2':
+  A2: empty
+  A3: empty
+  A4: empty
+  B2: empty
+  B3: empty
+  B4: empty
+  C2: empty
+  C3: empty
+  C4: empty

@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- **New example**: `examples/vacuum_pick_and_place/` — physical tic-tac-toe over a CNC gantry with a vacuum gripper. CLI protocol supports 1-player vs Easy/Medium/Hard AI and 2-player modes; pieces are picked from a 15-well storage rack and placed on a 15-well game board (3x3 play area). Adapted from `kelvinchow23/cnc-tictactoe` without SiLA / web UI. Follows the `liquid_handling/` template: `tools/cnc_config.yaml` + `tools/vacuum_config.yaml`, `tools/vacuum_gripper.py` (thin wrapper that drives the CNC's spindle output via `cnc.spindle_on()` / `cnc.spindle_off()` instead of a separate serial port — the vacuum pump is wired to the GRBL spindle terminals), `protocols/tic_tac_toe.py` entry point, custom labware in `custom_labware/`, deck preset in `presets/`.
+
 ## 0.8.1 - 2026-06-11
 - **Docs**: added [`docs/SETUP.md`](docs/SETUP.md) — end-to-end walkthrough for new applications (deck definition → labware sourcing options → toolhead driver/wrapper → XY/Z offset measurement → Z calibration → protocol → dry-run). Linked from README quickstart.
   - Prerequisites now explicitly call out that `bounds:` is CNC-model-specific (shipped configs target the Genmitsu 3018) and recommend verifying real travel with a GRBL UI like [Candle](https://docs.sainsmart.com/article/bj9o96wcbc-how-to-set-up-use-candle-for-multiple-operations) before editing `cnc_config.yaml`.

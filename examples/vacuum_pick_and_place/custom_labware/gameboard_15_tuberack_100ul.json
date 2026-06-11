@@ -1,0 +1,227 @@
+{
+    "ordering": [
+        [
+            "A1",
+            "B1",
+            "C1"
+        ],
+        [
+            "A2",
+            "B2",
+            "C2"
+        ],
+        [
+            "A3",
+            "B3",
+            "C3"
+        ],
+        [
+            "A4",
+            "B4",
+            "C4"
+        ],
+        [
+            "A5",
+            "B5",
+            "C5"
+        ]
+    ],
+    "brand": {
+        "brand": "gameboard",
+        "brandId": []
+    },
+    "metadata": {
+        "displayName": "gameboard 15 Tube Rack with tictactoe 0.1 mL",
+        "displayCategory": "tubeRack",
+        "displayVolumeUnits": "µL",
+        "tags": []
+    },
+    "dimensions": {
+        "xDimension": 127.7,
+        "yDimension": 85.5,
+        "zDimension": 20
+    },
+    "wells": {
+        "A1": {
+            "depth": 5,
+            "totalLiquidVolume": 100,
+            "shape": "circular",
+            "diameter": 17.5,
+            "x": 8.85,
+            "y": 70.25,
+            "z": 15
+        },
+        "B1": {
+            "depth": 5,
+            "totalLiquidVolume": 100,
+            "shape": "circular",
+            "diameter": 17.5,
+            "x": 8.85,
+            "y": 42.75,
+            "z": 15
+        },
+        "C1": {
+            "depth": 5,
+            "totalLiquidVolume": 100,
+            "shape": "circular",
+            "diameter": 17.5,
+            "x": 8.85,
+            "y": 15.25,
+            "z": 15
+        },
+        "A2": {
+            "depth": 5,
+            "totalLiquidVolume": 100,
+            "shape": "circular",
+            "diameter": 17.5,
+            "x": 36.35,
+            "y": 70.25,
+            "z": 15
+        },
+        "B2": {
+            "depth": 5,
+            "totalLiquidVolume": 100,
+            "shape": "circular",
+            "diameter": 17.5,
+            "x": 36.35,
+            "y": 42.75,
+            "z": 15
+        },
+        "C2": {
+            "depth": 5,
+            "totalLiquidVolume": 100,
+            "shape": "circular",
+            "diameter": 17.5,
+            "x": 36.35,
+            "y": 15.25,
+            "z": 15
+        },
+        "A3": {
+            "depth": 5,
+            "totalLiquidVolume": 100,
+            "shape": "circular",
+            "diameter": 17.5,
+            "x": 63.85,
+            "y": 70.25,
+            "z": 15
+        },
+        "B3": {
+            "depth": 5,
+            "totalLiquidVolume": 100,
+            "shape": "circular",
+            "diameter": 17.5,
+            "x": 63.85,
+            "y": 42.75,
+            "z": 15
+        },
+        "C3": {
+            "depth": 5,
+            "totalLiquidVolume": 100,
+            "shape": "circular",
+            "diameter": 17.5,
+            "x": 63.85,
+            "y": 15.25,
+            "z": 15
+        },
+        "A4": {
+            "depth": 5,
+            "totalLiquidVolume": 100,
+            "shape": "circular",
+            "diameter": 17.5,
+            "x": 91.35,
+            "y": 70.25,
+            "z": 15
+        },
+        "B4": {
+            "depth": 5,
+            "totalLiquidVolume": 100,
+            "shape": "circular",
+            "diameter": 17.5,
+            "x": 91.35,
+            "y": 42.75,
+            "z": 15
+        },
+        "C4": {
+            "depth": 5,
+            "totalLiquidVolume": 100,
+            "shape": "circular",
+            "diameter": 17.5,
+            "x": 91.35,
+            "y": 15.25,
+            "z": 15
+        },
+        "A5": {
+            "depth": 5,
+            "totalLiquidVolume": 100,
+            "shape": "circular",
+            "diameter": 17.5,
+            "x": 118.85,
+            "y": 70.25,
+            "z": 15
+        },
+        "B5": {
+            "depth": 5,
+            "totalLiquidVolume": 100,
+            "shape": "circular",
+            "diameter": 17.5,
+            "x": 118.85,
+            "y": 42.75,
+            "z": 15
+        },
+        "C5": {
+            "depth": 5,
+            "totalLiquidVolume": 100,
+            "shape": "circular",
+            "diameter": 17.5,
+            "x": 118.85,
+            "y": 15.25,
+            "z": 15
+        }
+    },
+    "groups": [
+        {
+            "brand": {
+                "brand": "tictactoe",
+                "brandId": []
+            },
+            "metadata": {
+                "wellBottomShape": "flat",
+                "displayCategory": "tubeRack"
+            },
+            "wells": [
+                "A1",
+                "B1",
+                "C1",
+                "A2",
+                "B2",
+                "C2",
+                "A3",
+                "B3",
+                "C3",
+                "A4",
+                "B4",
+                "C4",
+                "A5",
+                "B5",
+                "C5"
+            ]
+        }
+    ],
+    "parameters": {
+        "format": "irregular",
+        "quirks": [
+            "noLabwarePositionCheck"
+        ],
+        "isTiprack": false,
+        "isMagneticModuleCompatible": false,
+        "loadName": "gameboard_15_tuberack_100ul"
+    },
+    "namespace": "custom_beta",
+    "version": 1,
+    "schemaVersion": 2,
+    "cornerOffsetFromSlot": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    }
+}

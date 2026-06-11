@@ -1,0 +1,30 @@
+# CNC machine + deck configuration for the vacuum pick-and-place tic-tac-toe demo.
+# Identical schema to examples/liquid_handling/tools/cnc_config.yaml.
+
+cnc:
+  com_port: COM4          # Windows: COMx; Linux/RPi: /dev/ttyUSB0
+  baud_rate: 115200
+  bounds:                 # Genmitsu 3018 envelope; verify yours with Candle.
+    x: [0, 280]
+    y: [0, 180]
+    z: [-37, 0]
+
+virtual: false            # true = log G-code only; no CNC, no vacuum.
+
+move_speed: 2500          # mm/min for XY travel between cells
+
+# Z heights for pick-and-place (mm, machine coordinates).
+# Calibrate with z_helper.py — Z is per (tool, labware, action), not derivable
+# from the labware JSON. See docs/SETUP.md §4.
+z_heights:
+  hover: 0.0              # Safe travel height above the deck
+  pick: -21.0             # Z to descend when picking up a piece from storage
+  place: -19.0            # Z to descend when placing a piece on the board
+
+# Deck layout. Slot IDs follow the cnc_4_slot_deck convention:
+# 1 = front-left, 2 = front-right, 3 = back-left, 4 = back-right.
+deck:
+  definition: cnc_4_slot_deck
+  slots:
+    storage:   "1"   # storage_15_tuberack_100ul   (X + O piece reservoir)
+    gameboard: "2"   # gameboard_15_tuberack_100ul (3x3 play area in cols 2-4)
