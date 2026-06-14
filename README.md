@@ -2,30 +2,59 @@
 
 Authors: Owen Melville, Kelvin Chow
 
-Last Updated: 2026-03-18
+Last Updated: 2026-06-14
 
 <h2> Overall description </h2>
-This package can be used to control Genmitsu CNC machines. This is useful for accelerated discovery because you can put your tools onto the CNC machine.
+This package can be used to control Genmitsu CNC machines. This is useful for
+accelerated discovery because you can put your tools onto the CNC machine.
+
+A handful of reference applications ship in [`examples/`](examples/). Each is
+a complete, copyable project — order the parts, follow the assembly guide
+(~1 hour), set up the venv, edit two YAML files, and run.
+
+| Example | What it does | Video / photos |
+| ------- | ------------ | -------------- |
+| [`hello_cnc/`](examples/hello_cnc/) | Smoke test: home, move, spindle on/off | _TBD_ |
+| [`liquid_handling/`](examples/liquid_handling/) | Serial dilution with a Sartorius Picus 2 pipette | _TBD_ |
+| [`vacuum_pick_and_place/`](examples/vacuum_pick_and_place/) | Tic-tac-toe with a vacuum gripper | _TBD_ |
+
+<h2>Quick start</h2>
+
+```bash
+# 1. Pick an example and read its README + ASSEMBLY_INSTRUCTIONS.md.
+#    Order/print the parts, assemble the hardware (~1 hour).
+
+# 2. From the example folder:
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1     # Windows
+# source .venv/bin/activate      # Linux / macOS
+pip install -r requirements.txt
+
+# 3. Edit tools/cnc_config.yaml (COM port, travel bounds) and the tool config.
+
+# 4. Smoke-test the machine:
+python ../hello_cnc/hello_cnc.py
+
+# 5. Calibrate Z heights, copy the values into cnc_config.yaml:
+python z_helper.py
+
+# 6. Run the protocol.
+python protocols/<name>.py
+```
+
+> **New to the library?** Read [docs/SETUP.md](docs/SETUP.md) for the
+> long-form software walkthrough: deck → labware → toolhead/driver → tool
+> offsets → Z calibration → protocol.
+>
+> **Building your own application?** Use [`examples/liquid_handling/`](examples/liquid_handling/)
+> or [`examples/vacuum_pick_and_place/`](examples/vacuum_pick_and_place/) as a
+> template. The conventions are documented in [examples/AGENTS.md](examples/AGENTS.md).
 
 Install from PyPI:
 
 ```bash
 pip install cnc-4-science
 ```
-
-Then import `cnc_machine_core` and use its methods to intuitively and seamlessly move the CNC machine with whatever scientific tools you want to incorporate. See `examples/liquid_handling/` for a full worked example.
-
-> **New to the library?** Read [docs/SETUP.md](docs/SETUP.md) for a step-by-step
-> walkthrough of building a new application: deck → labware → toolhead/driver →
-> tool offsets → Z calibration → protocol. The section below is the quick API
-> reference; SETUP.md is the long-form how-to.
->
-> **Building the physical machine?** See [docs/hardware/](docs/hardware/) for
-> the base CNC + deck (bill of materials, assembly, CAD index). Per-tool
-> hardware lives next to each example as `HARDWARE.md`.
->
-> **Looking for example projects?** See [examples/README.md](examples/README.md)
-> for a tour, and [examples/AGENTS.md](examples/AGENTS.md) when creating a new one.
 
 <h3>Basic Functions:</h3>
 

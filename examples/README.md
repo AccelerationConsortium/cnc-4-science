@@ -4,14 +4,23 @@ Reference projects that exercise `cnc_machine_core` end-to-end. Use these as
 **templates** when building your own application — copy the closest match and
 edit it.
 
-| Example | What it shows |
-| ------- | ------------- |
-| [`hello_cnc/`](hello_cnc/) | Minimum-viable smoke test: connect, home, move, spindle on/off. **Run this first** after assembling the machine. |
-| [`liquid_handling/`](liquid_handling/) | Serial-dilution protocol driven by a Sartorius Picus electronic pipette. Demonstrates the multi-tool config pattern and Opentrons standard labware. Hardware: [HARDWARE.md](liquid_handling/HARDWARE.md). |
-| [`vacuum_pick_and_place/`](vacuum_pick_and_place/) | Physical tic-tac-toe board with a vacuum gripper. Demonstrates a thin-wrapper tool (vacuum driven by the GRBL spindle), interactive CLI, optional FastAPI web frontend, and a shared `GameSession` state machine. Hardware: [HARDWARE.md](vacuum_pick_and_place/HARDWARE.md). |
+| Example | Hardware | Software |
+| ------- | -------- | -------- |
+| [`hello_cnc/`](hello_cnc/) | None beyond the base CNC | [README](hello_cnc/README.md) — **run this first as a smoke test** |
+| [`liquid_handling/`](liquid_handling/) | [ASSEMBLY_INSTRUCTIONS.md](liquid_handling/ASSEMBLY_INSTRUCTIONS.md) (~1 hr) | [README](liquid_handling/README.md) |
+| [`vacuum_pick_and_place/`](vacuum_pick_and_place/) | [ASSEMBLY_INSTRUCTIONS.md](vacuum_pick_and_place/ASSEMBLY_INSTRUCTIONS.md) (~1 hr) | [README](vacuum_pick_and_place/README.md) |
 
-Each example owns its own per-tool hardware docs (`HARDWARE.md`). The shared
-base CNC + deck are documented at [`docs/hardware/`](../docs/hardware/).
+## Standard user journey
+
+Every example follows the same 5-step flow — pick one and follow its README:
+
+1. **Hardware setup (~1 hr)** — order/print parts (BOM in `ASSEMBLY_INSTRUCTIONS.md`),
+   wire the tool, mount the deck.
+2. **Software setup** — `python -m venv .venv` → activate → `pip install -r requirements.txt`.
+3. **Configure** — edit `tools/cnc_config.yaml` (COM port, bounds) and the tool config.
+4. **Smoke test** — run [`hello_cnc/hello_cnc.py`](hello_cnc/) to verify the gantry.
+5. **Calibrate Z + run** — `python z_helper.py`, copy values to `cnc_config.yaml`,
+   then run the protocol.
 
 To create a new example, follow [AGENTS.md](AGENTS.md) — it documents the
 shared layout, config schema, driver-class pattern, and the conventions all

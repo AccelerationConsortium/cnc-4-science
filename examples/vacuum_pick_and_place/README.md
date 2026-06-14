@@ -12,22 +12,98 @@ workflow** — the gripper is just a thin wrapper around the CNC's spindle
 output (M3/M5), so swapping in any electromagnet, gripper, or solenoid that
 the controller can switch is a one-file change.
 
-> **Hardware:** see [HARDWARE.md](HARDWARE.md) for the per-tool BOM, assembly
-> steps, and CAD index. Base CNC + deck are documented at
-> [`docs/hardware/`](../../docs/hardware/).
+---
 
-## What's different from the liquid handling demo
+## 1. Hardware setup (~1 hour)
 
-| Aspect            | Liquid handling                        | This example                                |
-| ----------------- | -------------------------------------- | ------------------------------------------- |
-| Tool              | Sartorius Picus 2 pipette              | Vacuum gripper (suction cup on spindle)     |
-| Tool comms        | Separate serial port (`COM3`)          | **None** — uses CNC's spindle output        |
-| Tool wrapper      | [`PicusPipette`](../liquid_handling/tools/picus_pipette.py) calls vendor driver | [`VacuumGripper`](tools/vacuum_gripper.py) calls `cnc.spindle_on()` / `cnc.spindle_off()` |
-| Tool config       | port, baud, volumes                    | RPM, settle delays (no port)                |
-| Labware           | Opentrons standard + custom tiprack    | Two custom 15-well racks (storage + board)  |
-| Workflow          | Linear (prefill → dilute)              | **Interactive** — CLI prompts for moves     |
+See [ASSEMBLY_INSTRUCTIONS.md](ASSEMBLY_INSTRUCTIONS.md) for the full BOM,
+print list, wiring, and step-by-step build. Come back here when the gantry is
+mounted, the deck is squared, the vacuum gripper is wired, and the pump turns
+on when GRBL sends `M3`.
 
-## Deck layout
+## 2. Software setup
+
+```bash
+# 1. Create + activate a virtual environment
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1     # Windows
+# source .venv/bin/activate      # Linux / macOS
+
+# 2. Install dependencies
+pip install -r requirements.txt
+```
+
+Edit the two config files in [`tools/`](tools/):
+
+- [`tools/cnc_config.yaml`](tools/cnc_config.yaml) — CNC COM port, travel bounds, Z heights, deck layout.
+- [`tools/vacuum_config.yaml`](tools/vacuum_config.yaml) — vacuum RPM, settle delays, XY offset.
+
+> Set `virtual: true` in `cnc_config.yaml` to dry-run the protocol without
+> any hardware connected.
+
+## 3. Smoke-test the hardware
+
+Before running the game, verify the gantry moves correctly:
+
+```bash
+python ../hello_cnc/hello_cnc.py
+```
+
+If the machine homes, jogs, and toggles the spindle, you're good. If not, fix
+the COM port / bounds in `cnc_config.yaml` first.
+
+## 4. Calibrate Z heights
+
+The shipped values (`pick: -21.0`, `place: -19.0`) are calibrated for one
+specific build. Re-run the helper for yours:
+
+```bash
+python z_helper.py
+```
+
+Jog Z until the suction cup just kisses the top of a storage piece
+(→ `pick`) and just above a board cell rim (→ `place`). Copy both numbers
+into the `z_heights:` block of [`tools/cnc_config.yaml`](tools/cnc_config.yaml).
+
+## 5. Run
+
+```bash
+python protocols/tic_tac_toe.py
+```
+
+The CLI prompts for game mode and accepts cell labels `A1`..`C3`. Commands
+during play:
+
+| Input        | Effect                                      |
+| ------------ | ------------------------------------------- |
+| `A1`..`C3`   | Place at that cell                          |
+| `reset`      | Return every placed piece to storage        |
+| `quit`       | Exit; optionally reset board first          |
+
+Deck state is auto-saved to `output/deck_state.yaml` after every move, so
+a crashed game resumes from the last known state.
+
+### Optional: browser UI
+
+A lightweight FastAPI frontend drives the same `GameSession` as the CLI (same
+lock, same hardware handles, same state) — you cannot accidentally drive the
+gantry from both at once.
+
+```bash
+uvicorn web.app:app --host 0.0.0.0 --port 8000
+```
+
+Then open <http://localhost:8000/>. 3×3 clickable board with mode / difficulty
+/ symbol selectors, reset button, AI peek-and-play handshake (board flashes
+the next CNC move before the gantry executes), and a collapsed debug bar with
+the API request log. `virtual: true` works exactly the same way — the browser
+drives the full game loop, just without any actual motion.
+
+---
+
+## Reference
+
+### Deck layout
 
 | Slot | Position    | Role       | Labware                              |
 | ---- | ----------- | ---------- | ------------------------------------ |
@@ -45,90 +121,32 @@ Game board (slot 2): 3×3 play area occupies columns 2-4 of the 15-well rack
 Slot assignment lives in [tools/cnc_config.yaml](tools/cnc_config.yaml) under
 `deck:` — change it there, not in the protocol.
 
-## Run
+### What's different from the liquid handling demo
 
-```bash
-pip install -r requirements.txt
+| Aspect            | Liquid handling                        | This example                                |
+| ----------------- | -------------------------------------- | ------------------------------------------- |
+| Tool              | Sartorius Picus 2 pipette              | Vacuum gripper (suction cup on spindle)     |
+| Tool comms        | Separate serial port (`COM3`)          | **None** — uses CNC's spindle output        |
+| Tool wrapper      | [`PicusPipette`](../liquid_handling/tools/picus_pipette.py) calls vendor driver | [`VacuumGripper`](tools/vacuum_gripper.py) calls `cnc.spindle_on()` / `cnc.spindle_off()` |
+| Tool config       | port, baud, volumes                    | RPM, settle delays (no port)                |
+| Labware           | Opentrons standard + custom tiprack    | Two custom 15-well racks (storage + board)  |
+| Workflow          | Linear (prefill → dilute)              | **Interactive** — CLI prompts for moves     |
 
-# Edit ports / bounds to match your setup:
-#   tools/cnc_config.yaml     (CNC port, bounds, Z heights, deck layout)
-#   tools/vacuum_config.yaml  (vacuum RPM, settle delays, offset)
-
-# Optional: set virtual: true in tools/cnc_config.yaml to dry-run without hardware.
-python protocols/tic_tac_toe.py
-```
-
-The CLI prompts for game mode and accepts cell labels `A1`..`C3`. Commands
-during play:
-
-| Input        | Effect                                      |
-| ------------ | ------------------------------------------- |
-| `A1`..`C3`   | Place at that cell                          |
-| `reset`      | Return every placed piece to storage        |
-| `quit`       | Exit; optionally reset board first          |
-
-Deck state is auto-saved to `output/deck_state.yaml` after every move, so
-a crashed game resumes from the last known state.
-
-## Run (web frontend, optional)
-
-A lightweight browser UI is included for the same game. It shares the same
-[`GameSession`](game_session.py) object as the CLI — same lock, same hardware
-handles, same state machine — so you cannot accidentally drive the gantry
-from both at once.
-
-```bash
-pip install -r requirements.txt
-cd examples/vacuum_pick_and_place
-uvicorn web.app:app --host 0.0.0.0 --port 8000
-```
-
-Then open <http://localhost:8000/>. The page has:
-
-- A 3×3 clickable board with X/O styling.
-- Mode / difficulty / symbol selectors that mirror the CLI prompts.
-- A `Reset Board` button (returns every piece to storage on hardware).
-- An optional video panel — paste a YouTube URL (or any embeddable stream) to
-  watch the CNC while you play.
-- An API debug log showing every request, response, status, and latency.
-
-The server homes the CNC on startup and parks it at the origin on shutdown.
-`virtual: true` in `tools/cnc_config.yaml` works exactly the same way — the
-browser still drives the full game loop, just without any actual motion.
-
-
-## Calibrate Z heights
-
-The shipped values (`pick: -21.0`, `place: -19.0`) are calibrated for one
-specific setup and almost certainly wrong for yours. Re-run the helper:
-
-```bash
-python ../liquid_handling/z_helper.py
-```
-
-It is generic across examples — point it at your labware and tool, jog Z to
-where the vacuum cup just kisses the top of a piece (for `pick`) and just
-above the board cell rim (for `place`), and copy the values into the
-`z_heights:` block of `tools/cnc_config.yaml`.
-
-> **Note on the tool wrapper.** Because the vacuum doesn't have a serial
-> port, `z_helper.py` will only see the `offset:` from
-> `tools/vacuum_config.yaml` for XY centering. You still need to think about
-> Z separately per action — see [docs/SETUP.md §4](../../docs/SETUP.md#4-calibrate-z-heights).
-
-## Directory layout
+### Directory layout
 
 ```
 vacuum_pick_and_place/
 ├── README.md
+├── ASSEMBLY_INSTRUCTIONS.md
 ├── requirements.txt
 ├── game_logic.py                       # board + AI (pure Python, no CNC)
 ├── game_session.py                     # shared state machine (CLI + web)
 ├── app_runtime.py                      # config loading + CNC/gripper bootstrap
+├── z_helper.py                         # Z calibration helper (interactive)
 ├── protocols/
 │   └── tic_tac_toe.py                  # CLI entry point (thin loop over GameSession)
 ├── web/
-│   ├── app.py                          # FastAPI: /api/state | /start | /move | /reset
+│   ├── app.py                          # FastAPI: /api/state | /start | /move | /ai-move | /reset
 │   └── static/
 │       ├── index.html
 │       ├── game.js
@@ -145,7 +163,7 @@ vacuum_pick_and_place/
 └── output/                             # state files written here at runtime
 ```
 
-## Using this as a template
+### Using this as a template
 
 To adapt for a different vacuum/spindle-switched tool:
 
@@ -160,4 +178,4 @@ To adapt for a different vacuum/spindle-switched tool:
 5. **Write your protocol** in `protocols/`. The `_pick_and_place()` helper in
    [game_session.py](game_session.py) is a one-screen reference. If you also
    want a web UI, copy [web/app.py](web/app.py) — the FastAPI layer is
-   ~100 lines and reuses whatever ``GameSession``-style state machine you build.
+   ~100 lines and reuses whatever `GameSession`-style state machine you build.
