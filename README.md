@@ -192,24 +192,15 @@ serial port).
 
 ---
 
-## Authors
+## Authors and acknowledgements
 
-- Owen Melville
-- Kelvin Chow
+Authors: Owen Melville, Kelvin Chow.
 
-## Acknowledgements
+CNC-based scientific instruments inspired by the
+[Keith Brown Lab](https://sites.bu.edu/kablab/) at Boston University [[1]][1] [[2]][2].
 
-This library was inspired by the open-source CNC-based scientific instruments
-developed by the [KABLab](https://sites.bu.edu/kablab/) at Boston University.
-In particular:
-
-> List, D.; Gardner, A.; Claure, I.; Wong, J. Y.; Brown, K. A.
-> *ASMI: An automated, low-cost indenter for soft matter.*
-> HardwareX **20**, e00601 (2024).
-> [doi:10.1016/j.ohx.2024.e00601](https://doi.org/10.1016/j.ohx.2024.e00601)
-
-If you use `cnc-4-science` in published work, please cite the paper above
-alongside this repository.
+[1]: https://doi.org/10.1039/D4MH00797B
+[2]: https://doi.org/10.1016/j.ohx.2024.e00601
 
 ## License
 
