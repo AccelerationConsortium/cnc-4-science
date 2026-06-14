@@ -46,6 +46,7 @@ def build_session():
     z = cnc_cfg["z_heights"]
     slots = cnc_cfg["deck"]["slots"]
     deck_def = cnc_cfg["deck"].get("definition")
+    travel = cnc_cfg.get("travel")  # None -> straight-line moves
 
     cnc = CNC_Machine.from_config(CNC_CONFIG_PATH)
     cnc.connect()
@@ -78,6 +79,7 @@ def build_session():
         preset_path=PRESET_PATH,
         state_output=STATE_OUTPUT,
         virtual=virtual,
+        travel=travel,
     )
     return session, cnc, gripper
 

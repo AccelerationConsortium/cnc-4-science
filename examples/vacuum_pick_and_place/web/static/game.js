@@ -5,7 +5,6 @@ const statusEl  = document.getElementById("status");
 const historyEl = document.getElementById("history");
 const btnStart  = document.getElementById("btn-start");
 const btnReset  = document.getElementById("btn-reset");
-const btnStream = document.getElementById("btn-load-stream");
 const debugLog  = document.getElementById("debug-log");
 const btnClear  = document.getElementById("btn-clear-log");
 
@@ -48,36 +47,19 @@ POSITIONS.forEach(pos => {
     board.appendChild(cell);
 });
 
-// ── Optional YouTube / stream embed ─────────────────────────────
+// ── Mode <-> difficulty enable/disable ──────────────────────────
 
-btnStream.addEventListener("click", () => {
-    const url = document.getElementById("stream-url").value.trim();
-    if (!url) return;
-    const videoId = extractYouTubeId(url);
-    const frame = document.getElementById("stream-frame");
-    const placeholder = document.getElementById("stream-placeholder");
+const modeSelect = document.getElementById("mode");
+const difficultySelect = document.getElementById("difficulty");
+const symbolSelect = document.getElementById("symbol");
 
-    if (videoId) {
-        frame.src = "https://www.youtube.com/embed/" + videoId + "?autoplay=1";
-    } else {
-        frame.src = url;
-    }
-    placeholder.style.display = "none";
-});
-
-function extractYouTubeId(url) {
-    const patterns = [
-        /(?:youtube\.com\/watch\?v=)([A-Za-z0-9_-]{11})/,
-        /(?:youtu\.be\/)([A-Za-z0-9_-]{11})/,
-        /(?:youtube\.com\/live\/)([A-Za-z0-9_-]{11})/,
-        /(?:youtube\.com\/embed\/)([A-Za-z0-9_-]{11})/,
-    ];
-    for (const pat of patterns) {
-        const m = url.match(pat);
-        if (m) return m[1];
-    }
-    return null;
+function syncModeControls() {
+    const twoPlayer = parseInt(modeSelect.value, 10) === 2;
+    difficultySelect.disabled = twoPlayer;
+    symbolSelect.disabled     = twoPlayer;
 }
+modeSelect.addEventListener("change", syncModeControls);
+syncModeControls();
 
 // ── API helpers ─────────────────────────────────────────────────
 
@@ -120,7 +102,7 @@ function render(state) {
             const me = state.human_symbol;
             statusEl.textContent = state.current_player === me
                 ? "Your move (" + me + ")"
-                : "AI thinking...";
+                : "Opponent thinking...";
         } else {
             statusEl.textContent = state.current_player + "'s turn";
         }
@@ -161,6 +143,7 @@ btnStart.addEventListener("click", async () => {
             : { mode };
         const data = await api("POST", "start", body);
         render(data.state);
+        await maybePlayAi(data.state);
     } catch (e) {
         statusEl.textContent = e.message;
     }
@@ -186,10 +169,11 @@ async function onCellClick(pos) {
 
     waiting = true;
     placeOptimistic(pos, currentPlayer);
-    statusEl.textContent = "CNC placing piece...";
+    statusEl.textContent = "CNC placing " + currentPlayer + " at " + pos + "...";
     try {
         const data = await api("POST", "move", { position: pos });
         render(data.state);
+        await maybePlayAi(data.state);
     } catch (e) {
         statusEl.textContent = e.message;
         // Revert optimistic update on error
@@ -201,6 +185,38 @@ async function onCellClick(pos) {
     waiting = false;
 }
 
+async function maybePlayAi(state) {
+    if (!state || !state.ai_pending_cell) return;
+    const cell = state.ai_pending_cell;
+    const sym  = state.ai_symbol;
+    placeOptimistic(cell, sym);
+    statusEl.textContent = "CNC placing " + sym + " at " + cell + "...";
+    try {
+        const data = await api("POST", "ai-move");
+        render(data.state);
+        // Just in case the API returns another pending move (shouldn't happen)
+        if (data.state.ai_pending_cell) await maybePlayAi(data.state);
+    } catch (e) {
+        statusEl.textContent = "Move failed: " + e.message;
+        try {
+            const s = await api("GET", "state");
+            render(s);
+        } catch (_) {}
+    }
+}
+
 // ── Initial load ────────────────────────────────────────────────
 
 api("GET", "state").then(render).catch(() => {});
+
+api("GET", "info").then(info => {
+    const banner = document.getElementById("info-banner");
+    if (!info) return;
+    const place = info.place_delay_s ?? 0;
+    const grip  = info.grip_delay_s ?? 0;
+    const virt  = info.virtual ? " \u00b7 VIRTUAL MODE (no hardware)" : "";
+    banner.textContent =
+        `Each move waits ~${place}s after release and ~${grip}s after pickup ` +
+        `for the vacuum to settle.${virt}`;
+    banner.hidden = false;
+}).catch(() => {});

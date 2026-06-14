@@ -54,6 +54,7 @@ class GameSession:
         preset_path: Path,
         state_output: Path | None,
         virtual: bool,
+        travel: dict | None = None,
     ):
         self.cnc = cnc
         self.gripper = gripper
@@ -67,6 +68,9 @@ class GameSession:
         self.state_output = state_output
         self.virtual = virtual
         self.offset = gripper.offset
+        self.travel = travel  # {"axis_order": ..., "x_offset": ..., "y_waypoint": ...} or None
+        self._last_xy: tuple[float, float] | None = None  # for relative routing
+        self._pending_ai: tuple[int, int] | None = None  # cached AI decision
 
         self._lock = threading.Lock()
 
@@ -87,20 +91,54 @@ class GameSession:
         x, y, _ = self.deck.get_labware(slot)[well].position(offset=self.offset)
         return x, y
 
+    def _travel_to(self, x, y, z):
+        """Route to (x, y, z). Orthogonal dogleg if configured AND source is known."""
+        if self.travel and self._last_xy is not None:
+            order = self.travel.get("axis_order", "yxy")
+            src_x, src_y = self._last_xy
+            if order == "yxy":
+                wp = src_y + float(self.travel.get("y_offset", 0.0))
+            elif order == "xyx":
+                wp = src_x + float(self.travel.get("x_offset", 0.0))
+            elif order == "xyxy":
+                wp = [
+                    src_x + float(self.travel.get("x_offset", 0.0)),
+                    float(self.travel["y_waypoint"]),
+                ]
+            elif order == "yxyx":
+                wp = [
+                    src_y + float(self.travel.get("y_offset", 0.0)),
+                    float(x) + float(self.travel.get("x_approach", 0.0)),
+                ]
+            else:
+                wp = None
+            if wp is not None:
+                self.cnc.move_to_point_safe_orthogonal(
+                    x, y, z,
+                    waypoint=wp,
+                    axis_order=order,
+                    speed=self.move_speed,
+                )
+            else:
+                self.cnc.move_to_point_safe(x, y, z, speed=self.move_speed)
+        else:
+            self.cnc.move_to_point_safe(x, y, z, speed=self.move_speed)
+        self._last_xy = (x, y)
+
     def _pick_and_place(self, storage_well, board_well):
         sx, sy = self._xy(self.slot_storage, storage_well)
         bx, by = self._xy(self.slot_board, board_well)
-        self.cnc.move_to_point_safe(sx, sy, self.z_pick, speed=self.move_speed)
+        self._travel_to(sx, sy, self.z_pick)
         self.gripper.engage()
-        self.cnc.move_to_point_safe(bx, by, self.z_place, speed=self.move_speed)
+        self._travel_to(bx, by, self.z_place)
         self.gripper.release()
 
     def _return_piece(self, board_well, storage_well):
         bx, by = self._xy(self.slot_board, board_well)
         sx, sy = self._xy(self.slot_storage, storage_well)
-        self.cnc.move_to_point_safe(bx, by, self.z_pick, speed=self.move_speed)
+        self._travel_to(bx, by, self.z_pick)
         self.gripper.engage()
-        self.cnc.move_to_point_safe(sx, sy, self.z_place, speed=self.move_speed)
+        self._travel_to(sx, sy, self.z_place)
         self.gripper.release()
 
     # ── State helpers ──────────────────────────────────────────────────
@@ -151,8 +189,12 @@ class GameSession:
 
     # ── Public API ─────────────────────────────────────────────────────
 
-    def start(self, mode: int, human_symbol: str | None = None, ai_difficulty: str | None = None):
-        """Begin a new game. Resets the in-memory board (does NOT move hardware)."""
+    def start(self, mode: int, human_symbol: str | None = None, ai_difficulty: str | None = None, *, auto_play_ai: bool = True):
+        """Begin a new game. Resets the in-memory board (does NOT move hardware).
+
+        ``auto_play_ai=False`` (web UI) lets the caller decide when to trigger
+        the AI's turn so the cell can be highlighted first.
+        """
         if mode not in (1, 2):
             raise ValueError(f"mode must be 1 or 2, got {mode!r}")
         if mode == 1:
@@ -173,15 +215,17 @@ class GameSession:
             )
             self.ai_difficulty = ai_difficulty if mode == 1 else None
             self.status = "InProgress"
+            self._pending_ai = None
 
-            # If AI opens (human chose X, O goes first), let it play immediately.
-            if self.mode == 1 and self.current == self.ai_symbol:
+            # If AI opens (human chose X, O goes first), let it play immediately
+            # — but only in CLI mode. Web sets auto_play_ai=False.
+            if auto_play_ai and self.mode == 1 and self.current == self.ai_symbol:
                 self._play_ai_turn_if_needed()
 
         return self.snapshot()
 
-    def make_move(self, cell: str):
-        """Apply a human move (``"A1"``..``"C3"``). If AI is next, plays it too."""
+    def make_move(self, cell: str, *, auto_play_ai: bool = True):
+        """Apply a human move (``"A1"``..``"C3"``). Auto-plays AI unless disabled."""
         pos = parse_input(cell)
         if pos is None:
             raise ValueError(f"Invalid cell {cell!r} (use A1..C3)")
@@ -196,21 +240,44 @@ class GameSession:
                 raise RuntimeError("Not your turn — AI is about to play")
 
             self._play_one(row, col)
-            self._play_ai_turn_if_needed()
+            if auto_play_ai:
+                self._play_ai_turn_if_needed()
 
         return self.snapshot()
 
-    def _play_ai_turn_if_needed(self):
-        """Run the AI move if it's the AI's turn and the game is still live. Caller holds lock."""
+    def peek_ai_move(self) -> str | None:
+        """Return AI's next move as ``"A1"`` (decided + cached). None if not AI's turn."""
+        with self._lock:
+            rc = self._ensure_ai_decision()
+            return board_label(*rc) if rc else None
+
+    def play_ai_move(self):
+        """Execute the (possibly cached) AI move and return the new snapshot."""
+        with self._lock:
+            self._play_ai_turn_if_needed()
+        return self.snapshot()
+
+    def _ensure_ai_decision(self):
+        """Decide AI's next move if needed and cache it. Caller holds lock."""
         if (
             self.mode == 1
             and self.status == "InProgress"
             and self.current == self.ai_symbol
+            and self._pending_ai is None
         ):
             ai_fn = AI_LEVELS[self.ai_difficulty]
-            row, col = ai_fn(self.board, self.current)
-            print(f"  AI ({self.current}) plays: {board_label(row, col)}")
-            self._play_one(row, col, log_prefix="AI ")
+            self._pending_ai = ai_fn(self.board, self.current)
+        return self._pending_ai
+
+    def _play_ai_turn_if_needed(self):
+        """Run the AI move if it's the AI's turn and the game is still live. Caller holds lock."""
+        rc = self._ensure_ai_decision()
+        if rc is None:
+            return
+        row, col = rc
+        self._pending_ai = None
+        print(f"  AI ({self.current}) plays: {board_label(row, col)}")
+        self._play_one(row, col, log_prefix="AI ")
 
     def reset(self):
         """Return every placed piece to its storage well, in reverse order."""
@@ -235,6 +302,7 @@ class GameSession:
             self.human_symbol = None
             self.ai_symbol = None
             self.ai_difficulty = None
+            self._pending_ai = None
 
         return self.snapshot()
 

@@ -92,7 +92,7 @@ def _confirm_quit(session):
     return False
 
 
-def play_game(session):
+def play_game(session, vac_cfg):
     """Run one CLI game against ``session``. Returns True to play again."""
     num_players, human_symbol, ai_difficulty = select_mode()
     session.start(
@@ -105,21 +105,28 @@ def play_game(session):
         print(f"\nYou: {human_symbol}  |  AI: {session.ai_symbol} ({ai_difficulty})")
     else:
         print("\nPlayer 1: X  |  Player 2: O")
-    print("Moves: A1-C3 | 'reset' | 'quit'\n")
+    place_delay = vac_cfg.get("place_delay_s", 0)
+    print(
+        f"Note: each move waits ~{place_delay:g}s after release for the piece "
+        "to settle before lifting (place_delay_s in tools/vacuum_config.yaml)."
+    )
+    print("Commands at any move: A1-C3 to play | r/reset to clear board | q/quit to exit\n")
 
     while session.status == "InProgress":
         display_board(session.board)
 
         if num_players == 1:
-            prompt = f"Your move ({session.human_symbol}): "
+            who = f"Your move ({session.human_symbol})"
         else:
-            prompt = f"Player {'1' if session.current == 'X' else '2'} ({session.current}): "
+            who = f"Player {'1' if session.current == 'X' else '2'} ({session.current})"
+        prompt = f"{who}  [A1-C3 / r=reset / q=quit]: "
 
-        text = input(prompt).strip()
-        if text.lower() == "quit":
+        text = input(prompt).strip().lower()
+        if text in ("q", "quit"):
             return _confirm_quit(session)
-        if text.lower() == "reset":
+        if text in ("r", "reset"):
             session.reset()
+            print("Board reset.")
             return True
 
         try:
@@ -132,9 +139,13 @@ def play_game(session):
     _print_outcome(session)
 
     while True:
-        choice = input("\n(p)lay again / (q)uit: ").strip().lower()
+        choice = input("\n[p=play again / r=reset and play / q=quit]: ").strip().lower()
         if choice in ("p", "play"):
             session.reset()
+            return True
+        if choice in ("r", "reset"):
+            session.reset()
+            print("Board reset.")
             return True
         if choice in ("q", "quit"):
             return _confirm_quit(session)
@@ -142,7 +153,7 @@ def play_game(session):
 
 
 def main():
-    cnc_cfg, _ = load_configs()
+    cnc_cfg, vac_cfg = load_configs()
     virtual = cnc_cfg.get("virtual", False)
     move_speed = cnc_cfg.get("move_speed", 2500)
 
@@ -150,7 +161,7 @@ def main():
     try:
         playing = True
         while playing:
-            playing = play_game(session)
+            playing = play_game(session, vac_cfg)
     except KeyboardInterrupt:
         print("\nInterrupted.")
     finally:

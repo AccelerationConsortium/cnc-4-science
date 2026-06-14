@@ -7,72 +7,57 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <div class="top-bar">
+    <header class="app-header">
+        <img id="ac-logo" src="/static/ac-logo.png" alt="Acceleration Consortium"
+             onerror="this.style.display='none'">
         <h1>CNC Tic-Tac-Toe</h1>
-        <div id="setup" class="controls">
-            <select id="mode">
-                <option value="1">vs AI</option>
-                <option value="2">Two Player</option>
-            </select>
-            <select id="difficulty">
-                <option value="easy">Easy</option>
-                <option value="medium">Medium</option>
-                <option value="hard">Hard</option>
-            </select>
-            <select id="symbol">
-                <option value="X">Play as X</option>
-                <option value="O">Play as O</option>
-            </select>
-            <button id="btn-start">Start Game</button>
-        </div>
+    </header>
+
+    <div id="setup" class="controls">
+        <select id="mode">
+            <option value="1">1-Player</option>
+            <option value="2">2-Player</option>
+        </select>
+        <select id="difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+        </select>
+        <select id="symbol">
+            <option value="X">Play as X</option>
+            <option value="O">Play as O</option>
+        </select>
+        <button id="btn-start">Start Game</button>
     </div>
 
-    <div class="layout">
-        <!-- Left: Game board -->
-        <div class="game-panel">
-            <div class="board-container">
-                <div class="board-labels-top">
-                    <span></span><span>1</span><span>2</span><span>3</span>
-                </div>
-                <div class="board-with-rows">
-                    <div class="row-labels">
-                        <span>A</span><span>B</span><span>C</span>
-                    </div>
-                    <div id="board" class="board"></div>
-                </div>
-            </div>
+    <div class="first-note">O goes first</div>
 
-            <div id="status" class="status">Click Start Game to begin</div>
-            <div id="history" class="history"></div>
-            <button id="btn-reset" class="btn-reset" disabled>Reset Board</button>
-        </div>
-
-        <!-- Right: Optional video stream -->
-        <div class="stream-panel">
-            <div class="stream-input">
-                <input id="stream-url" type="text"
-                       placeholder="Paste YouTube or stream URL (optional)">
-                <button id="btn-load-stream">Load</button>
+    <main class="game-panel">
+        <div class="board-container">
+            <div class="board-labels-top">
+                <span></span><span>1</span><span>2</span><span>3</span>
             </div>
-            <div class="stream-container">
-                <iframe id="stream-frame" src="" frameborder="0"
-                        allow="accelerometer; autoplay; encrypted-media; gyroscope"
-                        allowfullscreen></iframe>
-                <div id="stream-placeholder" class="stream-placeholder">
-                    Paste a YouTube URL above to watch the CNC machine
+            <div class="board-with-rows">
+                <div class="row-labels">
+                    <span>A</span><span>B</span><span>C</span>
                 </div>
+                <div id="board" class="board"></div>
             </div>
         </div>
-    </div>
 
-    <!-- API request log -->
-    <div class="debug-bar">
+        <div id="status" class="status">Click Start Game to begin</div>
+        <div id="info-banner" class="info-banner" hidden></div>
+        <button id="btn-reset" class="btn-reset" disabled>Reset Board</button>
+        <div id="history" class="history"></div>
+    </main>
+
+    <details class="debug-bar">
+        <summary>API Debug</summary>
         <div class="debug-header">
-            <span class="debug-title">API Debug</span>
             <button id="btn-clear-log" class="btn-clear">Clear</button>
         </div>
         <div id="debug-log" class="debug-log"></div>
-    </div>
+    </details>
 
     <script src="/static/game.js"></script>
 </body>

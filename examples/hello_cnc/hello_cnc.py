@@ -1,7 +1,7 @@
 """Hardware sanity check — run this first after physically setting up the machine.
 
 Verifies serial connection, homing, basic moves, and spindle control.
-Edit cnc_config.yaml in this folder (COM port, bounds) before running.
+Edit tools/cnc_config.yaml (COM port, bounds) before running.
 
 Usage:
     python hello_cnc.py

@@ -10,6 +10,7 @@ __pycache__/
 build/
 dist/
 *.egg
+.pytest_cache/
 
 # Per-protocol runtime output (calibration files, deck state snapshots)
 examples/**/output/

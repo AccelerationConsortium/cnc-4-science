@@ -44,13 +44,15 @@ class MoveRequest(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    cnc_cfg, _ = load_configs()
+    cnc_cfg, vac_cfg = load_configs()
     session, cnc, gripper = build_session()
     app.state.session = session
     app.state.cnc = cnc
     app.state.gripper = gripper
     app.state.virtual = cnc_cfg.get("virtual", False)
     app.state.move_speed = cnc_cfg.get("move_speed", 2500)
+    app.state.place_delay_s = vac_cfg.get("place_delay_s", 0)
+    app.state.grip_delay_s = vac_cfg.get("grip_delay_s", 0)
     try:
         yield
     finally:
@@ -76,28 +78,51 @@ def get_state():
     return app.state.session.snapshot()
 
 
+@app.get("/api/info")
+def get_info():
+    """Static-ish runtime info: vacuum delays, virtual flag. Used by the UI banner."""
+    return {
+        "virtual": app.state.virtual,
+        "place_delay_s": app.state.place_delay_s,
+        "grip_delay_s": app.state.grip_delay_s,
+    }
+
+
 @app.post("/api/start")
 def start_game(req: StartRequest):
+    session = app.state.session
     try:
-        state = app.state.session.start(
+        state = session.start(
             mode=req.mode,
             human_symbol=req.human_symbol,
             ai_difficulty=req.ai_difficulty,
+            auto_play_ai=False,
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    if state.get("is_ai_turn"):
+        state["ai_pending_cell"] = session.peek_ai_move()
     return {"message": "Game started", "state": state}
 
 
 @app.post("/api/move")
 def make_move(req: MoveRequest):
+    session = app.state.session
     try:
-        state = app.state.session.make_move(req.position)
+        state = session.make_move(req.position, auto_play_ai=False)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except RuntimeError as e:
         raise HTTPException(status_code=409, detail=str(e))
+    if state.get("is_ai_turn"):
+        state["ai_pending_cell"] = session.peek_ai_move()
     return {"message": "Move accepted", "state": state}
+
+
+@app.post("/api/ai-move")
+def ai_move():
+    state = app.state.session.play_ai_move()
+    return {"message": "AI moved", "state": state}
 
 
 @app.post("/api/reset")

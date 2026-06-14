@@ -19,6 +19,12 @@ Then import `cnc_machine_core` and use its methods to intuitively and seamlessly
 > walkthrough of building a new application: deck → labware → toolhead/driver →
 > tool offsets → Z calibration → protocol. The section below is the quick API
 > reference; SETUP.md is the long-form how-to.
+>
+> **Building the physical machine?** See [docs/hardware/](docs/hardware/) for
+> the bill of materials, assembly instructions, and CAD/3D-print index.
+>
+> **Looking for example projects?** See [examples/README.md](examples/README.md)
+> for a tour, and [examples/AGENTS.md](examples/AGENTS.md) when creating a new one.
 
 <h3>Basic Functions:</h3>
 
