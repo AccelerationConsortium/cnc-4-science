@@ -8,7 +8,7 @@ version = "0.8.0"
 description = "Control library for Genmitsu CNC machines used as low-cost lab automation platforms (liquid handling, fraction collection, vision-based capping, etc.)."
 readme = "README.md"
 requires-python = ">=3.9"
-license = "MIT"
+license = "GPL-3.0-or-later"
 license-files = ["LICENSE"]
 authors = [
   { name = "Owen Melville" },

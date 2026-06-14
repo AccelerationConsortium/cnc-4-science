@@ -360,6 +360,7 @@ python z_helper.py
 ```
 
 [examples/liquid_handling/z_helper.py](../examples/liquid_handling/z_helper.py)
+(and the equivalent [examples/vacuum_pick_and_place/z_helper.py](../examples/vacuum_pick_and_place/z_helper.py))
 moves the tool tip (with offset applied) over a chosen slot/well, then lets
 you jog Z in coarse → medium → fine steps until the tip kisses the surface
 you care about (tip pickup, aspirate floor, dispense height, etc.). It writes

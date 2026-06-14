@@ -1,24 +1,40 @@
-<h1> CNC MACHINE CODE </h1>
+<h1>cnc-4-science</h1>
 
-Authors: Owen Melville, Kelvin Chow
+> Turn a low-cost Genmitsu CNC into a self-driving lab module.
 
-Last Updated: 2026-06-14
+`cnc-4-science` is a Python control library for Genmitsu (GRBL) CNC routers
+used as gantries for **scientific automation** — liquid handling, fraction
+collection, vision-based capping, pick-and-place, fraction collection,
+indentation, and any other workflow that maps cleanly to "move this tool to
+that well and do something." Each module is built around a 3-step workflow:
 
-<h2> Overall description </h2>
-This package can be used to control Genmitsu CNC machines. This is useful for
-accelerated discovery because you can put your tools onto the CNC machine.
+| 1. Mount a Tool | 2. Define the Deck | 3. Write a Workflow |
+| --- | --- | --- |
+| Bolt a 3D-printed mount + your instrument onto the spindle carriage. Wire it through the GRBL spindle terminals (M3/M5) or a separate serial port. | Describe your labware and slot positions in YAML — Opentrons-compatible labware or custom JSON definitions. | Drive everything from Python: `cnc.move_to_location(...)`, `tool.do_thing()`. The library handles G-code, bounds checking, and alarm recovery. |
 
-A handful of reference applications ship in [`examples/`](examples/). Each is
-a complete, copyable project — order the parts, follow the assembly guide
-(~1 hour), set up the venv, edit two YAML files, and run.
+```bash
+pip install cnc-4-science
+```
 
-| Example | What it does | Video / photos |
-| ------- | ------------ | -------------- |
-| [`hello_cnc/`](examples/hello_cnc/) | Smoke test: home, move, spindle on/off | _TBD_ |
-| [`liquid_handling/`](examples/liquid_handling/) | Serial dilution with a Sartorius Picus 2 pipette | _TBD_ |
-| [`vacuum_pick_and_place/`](examples/vacuum_pick_and_place/) | Tic-tac-toe with a vacuum gripper | _TBD_ |
+---
 
-<h2>Quick start</h2>
+## Reference applications
+
+Each example below is a complete, copyable project. Order the parts, follow
+the assembly guide (~1 hour), set up the venv, edit two YAML files, and run.
+
+| Example | Tool | Workflow | Photos / videos |
+| ------- | ---- | -------- | --------------- |
+| [`hello_cnc/`](examples/hello_cnc/) | Stock spindle | Home, move, spindle on/off — the hardware smoke test | _TBD_ |
+| [`liquid_handling/`](examples/liquid_handling/) | Sartorius Picus 2 pipette | Serial dilution across a 24-well plate | _TBD_ |
+| [`vacuum_pick_and_place/`](examples/vacuum_pick_and_place/) | Vacuum gripper (spindle-driven) | Physical tic-tac-toe — CLI + optional browser UI | _TBD_ |
+
+See [`examples/README.md`](examples/README.md) for the standard 5-step user
+journey every example follows.
+
+---
+
+## Quick start
 
 ```bash
 # 1. Pick an example and read its README + ASSEMBLY_INSTRUCTIONS.md.
@@ -43,193 +59,121 @@ python protocols/<name>.py
 ```
 
 > **New to the library?** Read [docs/SETUP.md](docs/SETUP.md) for the
-> long-form software walkthrough: deck → labware → toolhead/driver → tool
-> offsets → Z calibration → protocol.
+> long-form software walkthrough (deck → labware → toolhead/driver →
+> tool offsets → Z calibration → protocol).
 >
-> **Building your own application?** Use [`examples/liquid_handling/`](examples/liquid_handling/)
-> or [`examples/vacuum_pick_and_place/`](examples/vacuum_pick_and_place/) as a
-> template. The conventions are documented in [examples/AGENTS.md](examples/AGENTS.md).
+> **Building your own application?** Copy [`examples/liquid_handling/`](examples/liquid_handling/)
+> or [`examples/vacuum_pick_and_place/`](examples/vacuum_pick_and_place/) as
+> a template — the conventions are documented in
+> [`examples/AGENTS.md`](examples/AGENTS.md).
 
-Install from PyPI:
+---
 
-```bash
-pip install cnc-4-science
-```
+## API reference
 
-<h3>Basic Functions:</h3>
-
-- Home CNC machine
-  
-- Move to absolute points (x,y,z)
-  
-- Move to locations defined in a structured way (Eg move to Vial Position 0)
-
-- Control of the spindle output
-  
-- Handles all gcode and CNC communication so you don't have to
-  
-- Makes sure you don't move the CNC machine to a position it can't go
-
-- Automatic alarm detection and recovery (re-homes if a limit switch is triggered)
-
-- Orthogonal waypoint moves for collision avoidance between deck slots
-
- <h3>API Reference</h3>
+### Motion
 
 | Method | Description |
 |---|---|
-| `home()` | Homes the robot and parks at the origin |
-| `origin()` | Moves the robot to the origin |
-| `connect()` / `close()` | Open and close serial connection to the CNC |
-| `move_to_point(x, y, z)` | Move to absolute coordinates |
-| `move_to_point_safe(x, y, z)` | Raises Z to clearance first, moves XY, then lowers Z. Prevents collisions with labware |
-| `move_to_point_safe_orthogonal(x, y, z, waypoint, axis_order)` | Moves one axis at a time through waypoints for collision avoidance. Axis orders: `yxy`, `xyx`, `xyxy`, `yxyx` |
-| `move_to_location(location, index)` | Move to a named location at the given index |
-| `spindle_on(speed)` | Turn on spindle at given RPM (M3) |
-| `spindle_off()` | Turn off spindle (M5) |
-| `is_alarm()` | Returns `True` if GRBL is in alarm state (e.g. limit switch triggered) |
-| `recover_if_alarm()` | Checks for alarm and auto-homes to recover. Called internally before every move |
+| `home()` / `origin()` | Home and park; or move to origin without homing. |
+| `connect()` / `close()` | Open / close the serial connection to the controller. |
+| `move_to_point(x, y, z)` | Absolute move (XYZ in mm). |
+| `move_to_point_safe(x, y, z)` | Raise Z to clearance, move XY, lower Z. Prevents collisions with labware. |
+| `move_to_point_safe_orthogonal(x, y, z, waypoint, axis_order)` | One-axis-at-a-time waypoint move (`yxy`, `xyx`, `xyxy`, `yxyx`). |
+| `move_to_location(location, index)` | Move to a named position from `location_status.yaml`. |
+| `spindle_on(rpm)` / `spindle_off()` | `M3` / `M5`. Doubles as the on/off for vacuum or solenoid tools wired to the spindle terminals. |
+| `is_alarm()` / `recover_if_alarm()` | Alarm-state check + auto-rehome. Called internally before every move. |
 
-<h3>Deck and Labware</h3>
+### Deck and labware
 
-The `cnc_deck` module provides `Well`, `Labware`, and `Deck` objects for coordinate resolution:
+The `cnc_deck` module provides `Well`, `Labware`, and `Deck` objects for
+coordinate resolution:
 
 ```python
 from cnc_machine_core import Deck
 
-deck = Deck()                                        # standard 4-slot deck
-plate = deck.load_labware("1", "labware/my_labware.json")  # returns Labware
+deck = Deck()                                                # standard 4-slot deck
+plate = deck.load_labware("1", "labware/my_labware.json")    # returns Labware
 
-well = plate["A1"]                                   # Well object
-x, y, z = well.position()                            # absolute CNC coordinates
-x, y, z = well.position(offset={"x": 6.75, "y": -4.0})  # with tool offset
-
-for well in plate.wells():                           # iterate in ordering
-    print(well.name, well.position())
+well = plate["A1"]
+x, y, z = well.position()
+x, y, z = well.position(offset={"x": 6.75, "y": -4.0})       # with tool offset
 ```
 
-Alternative deck layouts are in `deck/` (pass by name or path):
-- `cnc_4_slot_deck.json` — standard 4-slot (2×2) **[default]**
-- `cnc_1_slot_deck.json` — single slot at origin (open deck, no labware required)
+Built-in decks (pass by name or path to a custom JSON):
 
-Labware definitions are created using the [Opentrons Labware Creator](https://labware.opentrons.com/#/create). Only the X and Y well coordinates from the Opentrons JSON are used. Z heights are defined per-protocol as calibrated constants, since Z depends on the specific tool and labware combination rather than the labware geometry alone.
+- `cnc_4_slot_deck` — standard 4-slot (2×2) **[default]**
+- `cnc_1_slot_deck` — single open slot at origin (no labware required)
 
-Custom labware JSON files go in `labware/`. See the existing files there for reference.
+Labware definitions are created with the
+[Opentrons Labware Creator](https://labware.opentrons.com/#/create) — only
+the XY well coordinates are used. Z heights are calibrated empirically per
+(tool, labware, action) because they depend on the tool mount and labware
+seating, not the labware geometry alone. See
+[docs/SETUP.md §4](docs/SETUP.md#4-calibrate-z-heights).
 
-<h3>Direct Positioning (No Labware)</h3>
+### Direct positioning (no labware)
 
-For simpler setups that don't need labware definitions, use the open deck and move directly to absolute coordinates:
+For simple setups, use the open deck and move to raw coordinates:
 
 ```python
 from cnc_machine_core import Deck
 
-deck = Deck("cnc_1_slot_deck")           # built-in name; or pass a path to custom JSON
-# No labware needed — move to raw coordinates
+deck = Deck("cnc_1_slot_deck")
 cnc.move_to_point_safe(x=100, y=50, z=-20)
 ```
 
-Alternatively, position arrays can be defined in a YAML file and addressed by index using `move_to_location()`. This is useful for regular grids where you don't need named wells. Positions are defined in `location_status.yaml`:
+Regular grids without named wells can be described in YAML and addressed by
+index via `move_to_location()`:
 
 ```yaml
 vial_rack:
   num_x: 2          # columns
   num_y: 4          # rows
-  x_origin: 166.5   # first position X
-  y_origin: 125     # first position Y
+  x_origin: 166.5
+  y_origin: 125
   z_origin: 0
-  x_offset: 36      # spacing between columns
-  y_offset: -36     # spacing between rows
+  x_offset: 36
+  y_offset: -36
 ```
 
-The location index moves through a full column before advancing to the next. Index 0 is at the origin.
+The location index walks a full column before advancing.
 
-<img width="1580" height="1190" alt="image" src="https://github.com/user-attachments/assets/2022a495-b026-4f38-a9e6-7f2ad14fdd05" />
+<img width="1580" height="1190" alt="vial_rack" src="https://github.com/user-attachments/assets/2022a495-b026-4f38-a9e6-7f2ad14fdd05" />
 
-<h3>Z Calibration Helper</h3>
+### Deck state
 
-A Z calibration script is included at `examples/liquid_handling/z_helper.py`. It moves the CNC to a selected slot/well (with tool offset applied), then lets the user step Z up and down at three granularity levels (coarse, medium, fine) to find the correct working height. This is much faster than manually jogging and reading coordinates. Copy it into your own application and update the deck/labware/tool configuration for your setup.
-
-<h3>Deck State</h3>
-
-The `deck_state` module tracks per-well status across all deck slots with YAML persistence:
+The `deck_state` module tracks per-well status across all slots with YAML
+persistence:
 
 ```python
 from cnc_machine_core import DeckState
 
 ds = DeckState()
-ds.init_wells_from_labware("1", plate)              # from Labware object
-ds.init_from_preset({"1": {"A1": "sample"}})         # override specific wells
-ds.set_status("1", "A1", "processed")               # update (auto-saves)
-loc = ds.find_next(["1", "2"], "sample")             # first match -> ("1", "A2")
-ds.count(["1"], "processed")                         # count by status
-ds.summary()                                         # print slot breakdown
+ds.init_wells_from_labware("1", plate)
+ds.init_from_preset({"1": {"A1": "sample"}})
+ds.set_status("1", "A1", "processed")                # auto-saves
+loc = ds.find_next(["1", "2"], "sample")             # ("1", "A2")
+ds.count(["1"], "processed")
+ds.summary()
 ```
 
-Status strings are application-defined — use whatever makes sense for your workflow.
-A sample preset is in `examples/liquid_handling/deck_preset.yaml`.
+Status strings are application-defined. A sample preset is in
+[`examples/liquid_handling/deck_preset.yaml`](examples/liquid_handling/deck_preset.yaml).
 
-<h3>Starting a New Application</h3>
+### Z calibration helper
 
-After physically setting up the CNC machine, run `examples/hello_cnc/hardware_check.py` as a sanity check to verify the serial connection, homing, movement, and spindle all work correctly. Edit `examples/hello_cnc/cnc_config.yaml` to match your COM port and bounds before running:
+Each example ships its own `z_helper.py` — copy-and-edit, because the helper
+needs to know about that example's tool offset and labware. See
+[`examples/liquid_handling/z_helper.py`](examples/liquid_handling/z_helper.py)
+and
+[`examples/vacuum_pick_and_place/z_helper.py`](examples/vacuum_pick_and_place/z_helper.py)
+for the two shipped variants.
 
-```bash
-python examples/hello_cnc/hardware_check.py
-```
+### Tool wrapper contract
 
-Once the hardware check passes, create your application from the starter example at `examples/liquid_handling/` (a full worked example using a Sartorius Picus 2 pipette for serial dilution).
-
-1. **Copy the example** — copy `examples/liquid_handling/` to a new repository or directory
-2. **Install cnc-4-science** — install as a dependency in your project's virtual environment:
-
-   **Linux / macOS / Raspberry Pi:**
-   ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate
-   pip install cnc-4-science
-   ```
-
-   **Windows:**
-   ```powershell
-   python -m venv .venv
-   .\.venv\Scripts\Activate.ps1
-   pip install cnc-4-science
-   ```
-
-   Or for local editable development against an unreleased core:
-   ```bash
-   pip install -e path/to/cnc-machine
-   ```
-
-3. **Configure your CNC** — edit `tools/cnc_config.yaml` (COM port, baud, bounds). Then load it in your script with `CNC_Machine.from_config("tools/cnc_config.yaml")`
-4. **Add your labware** — place custom labware JSON files in `custom_labware/`, or load standard Opentrons labware via `opentrons_shared_data.labware.load_definition(...)`
-5. **Configure each tool** — create `tools/<tool>_config.yaml` per pipette/effector with COM port, mounting offset, Z heights, and any tool-specific parameters
-6. **Calibrate Z heights** — run `python z_helper.py` to find working Z for each tool + labware combo; copy results into the tool's `<tool>_config.yaml`
-7. **Validate** — set `virtual: true` in `tools/cnc_config.yaml` for a dry run, then on hardware
-8. **Implement tools** — use `tools/picus_pipette.py` as a pattern for wrapping new tools
-
-<h4>Architecture</h4>
-
-```
-cnc-4-science (library, on PyPI)         Your Application (copied example)
-├── src/cnc_machine_core/                  ├── protocols/
-│   ├── cnc_machine.py  (motion)            │   └── serial_dilution_demo.py
-│   ├── cnc_deck.py     (deck/wells)        ├── z_helper.py
-│   ├── deck_state.py   (state)             ├── deck_preset.yaml
-│   ├── deck/           (definitions)       ├── custom_labware/
-│   └── labware/        (labware JSON)      ├── tools/
-├── examples/                                │   ├── cnc_config.yaml          (CNC + deck layout + Z heights)
-│   ├── hello_cnc/                          │   ├── picus_config.yaml        (tool: port, offset, volumes)
-│   └── liquid_handling/                    │   ├── picus_pipette.py         (tool wrapper)
-└── pyproject.toml                           │   └── picus_driver.py          (vendored low-level driver)
-                                              └── requirements.txt  (`cnc-4-science`)
-```
-
-- **Library** owns: machine control, deck/labware primitives, standard definitions
-- **App** owns: concrete tool implementations, calibrated configs, workflow protocols
-
-<h4>Tool Contract</h4>
-
-Every tool class must follow this interface:
+Every tool class follows the same shape, so the protocols read the same way
+across examples:
 
 ```python
 class MyTool:
@@ -239,16 +183,34 @@ class MyTool:
         # extract parameters from tool_config["parameters"]
 ```
 
-See `examples/liquid_handling/tools/picus_pipette.py` for a working reference implementation.
+See
+[`examples/liquid_handling/tools/picus_pipette.py`](examples/liquid_handling/tools/picus_pipette.py)
+for a wrapper around a vendor serial driver, and
+[`examples/vacuum_pick_and_place/tools/vacuum_gripper.py`](examples/vacuum_pick_and_place/tools/vacuum_gripper.py)
+for a wrapper that drives the CNC's spindle terminals directly (no separate
+serial port).
 
-<h3>Advice on Integration with Scientific Instruments</h3>
+---
 
-- Create a separate python file for each tool (camera, force sensor, syringe pump, etc.)
-  
-- Create an instrument class that imports cnc_machine along with the python files for each tool (eg fraction_collector.py)
-  
-- In your instrument class make methods that intuitively describe the general actions of your instrument (eg dispense_fraction)
-  
-- Make your workflows in seperate python files or Jupyter notebook files that create an instance of your instrument class
-  
-- This will make your workflows as clean and simple as possible while hard to mess up!
+## Authors
+
+- Owen Melville
+- Kelvin Chow
+
+## Acknowledgements
+
+This library was inspired by the open-source CNC-based scientific instruments
+developed by the [KABLab](https://sites.bu.edu/kablab/) at Boston University.
+In particular:
+
+> List, D.; Gardner, A.; Claure, I.; Wong, J. Y.; Brown, K. A.
+> *ASMI: An automated, low-cost indenter for soft matter.*
+> HardwareX **20**, e00601 (2024).
+> [doi:10.1016/j.ohx.2024.e00601](https://doi.org/10.1016/j.ohx.2024.e00601)
+
+If you use `cnc-4-science` in published work, please cite the paper above
+alongside this repository.
+
+## License
+
+GNU General Public License v3.0 or later. See [LICENSE](LICENSE).
