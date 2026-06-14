@@ -21,7 +21,8 @@ Then import `cnc_machine_core` and use its methods to intuitively and seamlessly
 > reference; SETUP.md is the long-form how-to.
 >
 > **Building the physical machine?** See [docs/hardware/](docs/hardware/) for
-> the bill of materials, assembly instructions, and CAD/3D-print index.
+> the base CNC + deck (bill of materials, assembly, CAD index). Per-tool
+> hardware lives next to each example as `HARDWARE.md`.
 >
 > **Looking for example projects?** See [examples/README.md](examples/README.md)
 > for a tour, and [examples/AGENTS.md](examples/AGENTS.md) when creating a new one.

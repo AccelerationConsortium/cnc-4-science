@@ -1,10 +1,12 @@
-# CAD files
+# CAD files — base platform
 
-> **Placeholder.** Index of every CAD / 3D-printable asset checked into the
-> repo, plus print/cut settings. Update as new mounts and labware are added.
+> **Placeholder.** Per-tool CAD (gripper mount, pipette holster, etc.) lives
+> next to each example:
+> [vacuum_pick_and_place](../../examples/vacuum_pick_and_place/HARDWARE.md) ·
+> [liquid_handling](../../examples/liquid_handling/HARDWARE.md).
 
 Source files (`.f3d`, `.step`, `.dxf`) are stored alongside the print-ready
-exports (`.stl`) so the design history is preserved.
+exports (`.stl`) so design history is preserved.
 
 ## Deck
 
@@ -12,7 +14,7 @@ exports (`.stl`) so the design history is preserved.
 | ---- | ----------- | -------- | ----- |
 | _TBD_ | 4-slot SBS deck plate | _PETG / aluminum_ | Matches [`cnc_4_slot_deck.json`](../../src/cnc_machine_core/deck/cnc_4_slot_deck.json). |
 
-## Labware
+## Shared labware
 
 Custom labware definitions and their CAD live next to the JSON, under
 [`src/cnc_machine_core/labware/`](../../src/cnc_machine_core/labware/).
@@ -20,14 +22,6 @@ Custom labware definitions and their CAD live next to the JSON, under
 | Labware JSON | CAD file | Description |
 | ------------ | -------- | ----------- |
 | [`vialtrayholder_25_tuberack_1000ul.json`](../../src/cnc_machine_core/labware/vialtrayholder_25_tuberack_1000ul.json) | `labware/cad/vialtrayholder_25_tuberack_1000ul.{stl,f3d}` | 25-position HPLC vial rack. |
-| _\<add more as you create them\>_ | | |
-
-## Tool mounts
-
-| Tool | CAD file | Print settings | Notes |
-| ---- | -------- | -------------- | ----- |
-| Vacuum gripper | _TBD_ | _0.2 mm layer, 30% infill_ | Mounts to spindle carriage; suction cup glued to bottom. |
-| Picus pipette holster | _TBD_ | _0.2 mm layer, 30% infill_ | Clamps Picus body to spindle carriage. |
 
 ## Print settings (default)
 

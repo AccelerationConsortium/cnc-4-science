@@ -12,6 +12,10 @@ workflow** — the gripper is just a thin wrapper around the CNC's spindle
 output (M3/M5), so swapping in any electromagnet, gripper, or solenoid that
 the controller can switch is a one-file change.
 
+> **Hardware:** see [HARDWARE.md](HARDWARE.md) for the per-tool BOM, assembly
+> steps, and CAD index. Base CNC + deck are documented at
+> [`docs/hardware/`](../../docs/hardware/).
+
 ## What's different from the liquid handling demo
 
 | Aspect            | Liquid handling                        | This example                                |

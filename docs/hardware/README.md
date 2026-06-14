@@ -1,14 +1,17 @@
-# Hardware documentation
+# Hardware documentation — base platform
 
-This directory holds everything you need to **build the physical machine** that
-the `cnc_machine_core` library drives. It's organized as follows:
+This directory documents the **shared base machine**: the CNC gantry and the
+deck plate that every example mounts onto. Per-tool hardware (vacuum gripper,
+Picus pipette mount, etc.) is documented inside each example's own directory.
 
-- [BOM.md](BOM.md) — bill of materials. Every part to buy, where to buy it,
-  approximate cost, and substitution notes.
-- [ASSEMBLY.md](ASSEMBLY.md) — step-by-step assembly instructions for the base
-  CNC + the deck + any per-tool mounting.
-- [CAD.md](CAD.md) — index of CAD / 3D-printable files (`.f3d`, `.step`, `.stl`,
-  `.dxf`) checked into the repo, plus print/cut settings.
+- [BOM.md](BOM.md) — bill of materials for the base CNC + deck.
+- [ASSEMBLY.md](ASSEMBLY.md) — assembly steps for the base CNC + deck.
+- [CAD.md](CAD.md) — index of shared CAD files (deck plate, labware).
+
+For per-tool hardware see:
+
+- [examples/vacuum_pick_and_place/HARDWARE.md](../../examples/vacuum_pick_and_place/HARDWARE.md)
+- [examples/liquid_handling/HARDWARE.md](../../examples/liquid_handling/HARDWARE.md)
 
 The Python library itself lives in [`src/cnc_machine_core/`](../../src/cnc_machine_core/);
 software setup (Python install, config files, Z calibration) is covered in the

@@ -4,6 +4,10 @@
 
 This folder doubles as a **template** for building your own CNC-based protocols — copy it, swap the tool, edit the configs.
 
+> **Hardware:** see [HARDWARE.md](HARDWARE.md) for the per-tool BOM, assembly
+> steps, and CAD index. Base CNC + deck are documented at
+> [`docs/hardware/`](../../docs/hardware/).
+
 - **Phase 1 — Prefill.** Pick up a tip, prefill 23 wells (`B1..D6`) with diluent from reservoir A2 (batched aspirations), discard tip.
 - **Phase 2 — Dilute.** Pick up a new tip, transfer stock from reservoir A1 into plate A1, then serial-dilute column-by-column (`A1→B1→…→D6`) with a mix per step.
 
