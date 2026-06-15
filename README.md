@@ -29,7 +29,7 @@ the assembly guide (~1 hour), set up the venv, edit two YAML files, and run.
 | [`liquid_handling/`](examples/liquid_handling/) | Sartorius Picus 2 pipette | Serial dilution across a 24-well plate | _TBD_ |
 | [`vacuum_pick_and_place/`](examples/vacuum_pick_and_place/) | Vacuum gripper (spindle-driven) | Physical tic-tac-toe — CLI + optional browser UI | _TBD_ |
 
-See [`examples/README.md`](examples/README.md) for the standard 5-step user
+See [`examples/README.md`](examples/README.md) for the standard 3-step user
 journey every example follows.
 
 ---
@@ -48,15 +48,19 @@ pip install -r requirements.txt
 
 # 3. Edit tools/cnc_config.yaml (COM port, travel bounds) and the tool config.
 
-# 4. Smoke-test the machine:
-python ../hello_cnc/hello_cnc.py
-
-# 5. Calibrate Z heights, copy the values into cnc_config.yaml:
-python z_helper.py
-
-# 6. Run the protocol.
+# 4. Run the protocol.
 python protocols/<name>.py
 ```
+
+> First time setting up a new CNC? Run
+> [`examples/hello_cnc/hello_cnc.py`](examples/hello_cnc/) once to verify the
+> gantry homes, jogs, and toggles the spindle. You don't need to re-run it
+> for every protocol.
+>
+> Each example's `tools/cnc_config.yaml` ships with `z_heights:` calibrated
+> for the reference build in its `ASSEMBLY_INSTRUCTIONS.md`. If your build
+> differs, remeasure by hand — see
+> [docs/SETUP.md §4](docs/SETUP.md#4-calibrate-z-heights).
 
 > **New to the library?** Read [docs/SETUP.md](docs/SETUP.md) for the
 > long-form software walkthrough (deck → labware → toolhead/driver →
@@ -161,14 +165,13 @@ ds.summary()
 Status strings are application-defined. A sample preset is in
 [`examples/liquid_handling/deck_preset.yaml`](examples/liquid_handling/deck_preset.yaml).
 
-### Z calibration helper
+### Z calibration
 
-Each example ships its own `z_helper.py` — copy-and-edit, because the helper
-needs to know about that example's tool offset and labware. See
-[`examples/liquid_handling/z_helper.py`](examples/liquid_handling/z_helper.py)
-and
-[`examples/vacuum_pick_and_place/z_helper.py`](examples/vacuum_pick_and_place/z_helper.py)
-for the two shipped variants.
+Z heights live in `tools/cnc_config.yaml` under `z_heights:` and are measured
+empirically per `(tool, labware, action)` — see
+[docs/SETUP.md §4](docs/SETUP.md#4-calibrate-z-heights). Each shipped example
+includes calibrated values for its reference build; remeasure by hand if
+yours differs.
 
 ### Tool wrapper contract
 

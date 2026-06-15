@@ -16,7 +16,8 @@ virtual: false            # true = no hardware required; logs G-code only.
 move_speed: 1500          # mm/min for XY travel
 
 # Z heights for deck operations (mm, in machine coordinates).
-# Calibrate with z_helper.py.
+# Measured by hand for the reference build in ASSEMBLY_INSTRUCTIONS.md;
+# remeasure if your build differs (see docs/SETUP.md §4).
 z_heights:
   hover: 0.0              # Safe travel height above the deck
   tip_pickup: -35.5       # Engages tip cone on the rack

@@ -10,7 +10,7 @@ gripper.
 Source of truth for this BOM is [pick_and_place_CNC_demo_bom.csv](pick_and_place_CNC_demo_bom.csv).
 
 When you're done here, jump back to the [README](README.md) for the software
-setup (venv → `pip install` → configure YAML → smoke test → run).
+setup (venv → `pip install` → configure YAML → run).
 
 ---
 
@@ -86,6 +86,9 @@ game board. Square them against the X / Y axes before final torque.
 
 ### Stage 4 — Calibrate
 
-Run `python z_helper.py` from this directory to find pick / place Z heights,
-then copy them into [`tools/cnc_config.yaml`](tools/cnc_config.yaml) under
-`z_heights:`.
+Measure pick / place Z heights by hand: jog Z with a GRBL UI (e.g.
+[Candle](https://docs.sainsmart.com/article/bj9o96wcbc-how-to-set-up-use-candle-for-multiple-operations))
+until the suction cup just kisses the top of a storage piece (→ `pick`) and
+just above a board cell rim (→ `place`), then write both numbers into
+[`tools/cnc_config.yaml`](tools/cnc_config.yaml) under `z_heights:`. See
+[docs/SETUP.md §4](../../docs/SETUP.md#4-calibrate-z-heights).

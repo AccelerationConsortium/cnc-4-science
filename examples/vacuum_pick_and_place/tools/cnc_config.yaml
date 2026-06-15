@@ -31,8 +31,9 @@ travel:
   x_approach: -13.75      # mm, relative to target X (negative = approach from -X)
 
 # Z heights for pick-and-place (mm, machine coordinates).
-# Calibrate with z_helper.py — Z is per (tool, labware, action), not derivable
-# from the labware JSON. See docs/SETUP.md §4.
+# Measured by hand for the reference build in ASSEMBLY_INSTRUCTIONS.md;
+# Z is per (tool, labware, action), not derivable from the labware JSON.
+# Remeasure if your build differs — see docs/SETUP.md §4.
 z_heights:
   hover: 0.0              # Safe travel height above the deck
   pick: -30.0             # Z to descend when picking up a piece from storage

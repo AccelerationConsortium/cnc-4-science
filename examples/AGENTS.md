@@ -28,8 +28,7 @@ my_new_example/
 ├── protocols/
 │   └── <protocol>.py         # entry point — `python protocols/<protocol>.py`
 ├── app_runtime.py            # `build_session()` factory (only if >1 entry point)
-├── z_helper.py               # interactive Z calibration (see §6)
-└── output/                   # state snapshots, calibration files — git-ignored
+└── output/                   # state snapshots — git-ignored
 ```
 
 Drop anything you don't need (e.g. `presets/` if the protocol has no persistent
@@ -48,7 +47,7 @@ and edit the values. Required keys:
 | `cnc.com_port` / `baud_rate` / `bounds` | Serial + travel envelope |
 | `virtual` | `true` = log G-code only, no hardware |
 | `move_speed` | mm/min for XY travel |
-| `z_heights` | per-action Z (calibrate with `z_helper.py`) |
+| `z_heights` | per-action Z (measured by hand once — see [docs/SETUP.md §4](../docs/SETUP.md#4-calibrate-z-heights)) |
 | `deck.definition` | deck JSON id (e.g. `cnc_4_slot_deck`) — omit for default |
 | `deck.slots` | **role-keyed** map, e.g. `storage: "3"`, `gameboard: "4"` |
 | `travel` *(optional)* | dogleg routing — see [`vacuum_pick_and_place`](vacuum_pick_and_place/tools/cnc_config.yaml) |
@@ -114,23 +113,6 @@ the top of the protocol.
 
 ---
 
-## 6. The Z-calibration helper — `z_helper.py`
-
-Every example needs one because Z heights are per `(tool, labware, action)`
-and aren't derivable from the labware JSON. **Copy
-[`vacuum_pick_and_place/z_helper.py`](vacuum_pick_and_place/z_helper.py)
-verbatim** — the jog loop (Enter/u/1/2/3/s/q, bounds clamping, save format)
-is identical across all examples. Only change:
-
-1. **Which labware loads into which slot** (top of `run()`).
-2. **The action labels** you can pick from (`pick`/`place`, or
-   `gripper_pick_cap`/`capper_press`/...).
-3. **The calibration-key format** (`<labware>__<tool>__<action>`).
-
-After saving, copy the values into `tools/cnc_config.yaml` under `z_heights:`.
-
----
-
 ## 7. The protocol — `protocols/<protocol>.py`
 
 The actual user-facing script. Conventions:
@@ -150,7 +132,10 @@ The actual user-facing script. Conventions:
 
 ## 8. README
 
-Cover, in order: what the project does, hardware required, install (`pip install
--r requirements.txt`), `tools/cnc_config.yaml` edits, **Z calibration step**
-(`python z_helper.py`), and the run command. Keep it short — the configs are
-self-documenting via comments.
+Cover, in order: what the project does, hardware required (link to
+`ASSEMBLY_INSTRUCTIONS.md`), install (`pip install -r requirements.txt`),
+`tools/cnc_config.yaml` edits, and the run command. Note that `z_heights:`
+are pre-calibrated for the reference build — link to
+[docs/SETUP.md §4](../docs/SETUP.md#4-calibrate-z-heights) for the manual
+remeasure procedure. Keep it short — the configs are self-documenting via
+comments.

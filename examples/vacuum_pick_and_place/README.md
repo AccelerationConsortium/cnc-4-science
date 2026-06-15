@@ -41,31 +41,14 @@ Edit the two config files in [`tools/`](tools/):
 > Set `virtual: true` in `cnc_config.yaml` to dry-run the protocol without
 > any hardware connected.
 
-## 3. Smoke-test the hardware
+> The shipped `z_heights:` (`pick: -21.0`, `place: -19.0`) are calibrated for
+> the reference build in [ASSEMBLY_INSTRUCTIONS.md](ASSEMBLY_INSTRUCTIONS.md).
+> If your build differs, remeasure by hand — jog Z until the suction cup just
+> kisses the top of a storage piece (→ `pick`) and just above a board cell
+> rim (→ `place`), then edit `z_heights:`. See
+> [docs/SETUP.md §4](../../docs/SETUP.md#4-calibrate-z-heights).
 
-Before running the game, verify the gantry moves correctly:
-
-```bash
-python ../hello_cnc/hello_cnc.py
-```
-
-If the machine homes, jogs, and toggles the spindle, you're good. If not, fix
-the COM port / bounds in `cnc_config.yaml` first.
-
-## 4. Calibrate Z heights
-
-The shipped values (`pick: -21.0`, `place: -19.0`) are calibrated for one
-specific build. Re-run the helper for yours:
-
-```bash
-python z_helper.py
-```
-
-Jog Z until the suction cup just kisses the top of a storage piece
-(→ `pick`) and just above a board cell rim (→ `place`). Copy both numbers
-into the `z_heights:` block of [`tools/cnc_config.yaml`](tools/cnc_config.yaml).
-
-## 5. Run
+## 3. Run
 
 ```bash
 python protocols/tic_tac_toe.py
@@ -142,7 +125,6 @@ vacuum_pick_and_place/
 ├── game_logic.py                       # board + AI (pure Python, no CNC)
 ├── game_session.py                     # shared state machine (CLI + web)
 ├── app_runtime.py                      # config loading + CNC/gripper bootstrap
-├── z_helper.py                         # Z calibration helper (interactive)
 ├── protocols/
 │   └── tic_tac_toe.py                  # CLI entry point (thin loop over GameSession)
 ├── web/
@@ -174,7 +156,10 @@ To adapt for a different vacuum/spindle-switched tool:
 3. **Add a tool config.** Update `tools/vacuum_config.yaml` with the on-value
    (RPM / PWM duty), any settle delays, and the XY/Z mount offset.
 4. **Edit `cnc_config.yaml`.** Update `deck:` slot roles + labware comments
-   to match your deck. Recalibrate Z with `z_helper.py`.
+   to match your deck. Measure Z heights by hand (jog with a GRBL UI like
+   [Candle](https://docs.sainsmart.com/article/bj9o96wcbc-how-to-set-up-use-candle-for-multiple-operations)
+   or `cnc.move_to_point(...)` from a Python shell) and write them into
+   `z_heights:` — see [docs/SETUP.md §4](../../docs/SETUP.md#4-calibrate-z-heights).
 5. **Write your protocol** in `protocols/`. The `_pick_and_place()` helper in
    [game_session.py](game_session.py) is a one-screen reference. If you also
    want a web UI, copy [web/app.py](web/app.py) — the FastAPI layer is

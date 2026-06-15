@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+- **Per-example `z_helper.py` removed.** Each example's shipped `z_heights:` is calibrated for the reference build in its `ASSEMBLY_INSTRUCTIONS.md`; if a downstream build differs, remeasure by hand (jog with [Candle](https://docs.sainsmart.com/article/bj9o96wcbc-how-to-set-up-use-candle-for-multiple-operations) or `cnc.move_to_point(...)` from a Python REPL) and edit the `z_heights:` block. Procedure documented in [docs/SETUP.md §4](docs/SETUP.md#4-calibrate-z-heights).
+- **Smoke-test step dropped from per-example READMEs.** `hello_cnc/hello_cnc.py` is a one-time CNC sanity check for new hardware, not a prerequisite for every protocol. The standard user journey in [examples/README.md](examples/README.md) is now 3 steps (hardware → software → configure & run).
+- Updated [examples/AGENTS.md](examples/AGENTS.md) (dropped §6 z_helper.py section, README guidance) and top-level [README.md](README.md) (Quick start, Z calibration section) to match.
 - **BOM tables populated** in each example's `ASSEMBLY_INSTRUCTIONS.md`. Each example gets a sibling `<project>_bom.csv` (`hello_CNC_bom.csv`, `liquid_handling_CNC_demo_bom.csv`, `pick_and_place_CNC_demo_bom.csv` — matching the `Project` field in the upstream spreadsheet) so the parts list is diffable and renders directly on GitHub. The upstream master spreadsheet is kept locally only and is gitignored.
 - New `examples/hello_cnc/ASSEMBLY_INSTRUCTIONS.md` covering the base-CNC build (the smoke test had no assembly doc before).
 - **License changed from MIT to GPL-3.0-or-later.** Updated `LICENSE` to the full GNU GPL v3 text and `pyproject.toml`'s `license` field accordingly.

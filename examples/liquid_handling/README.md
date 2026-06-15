@@ -38,28 +38,12 @@ Edit the two config files in [`tools/`](tools/):
 > Set `virtual: true` in `cnc_config.yaml` to dry-run the protocol without
 > any hardware connected.
 
-## 3. Smoke-test the hardware
+> The shipped `z_heights:` are calibrated for the reference build in
+> [ASSEMBLY_INSTRUCTIONS.md](ASSEMBLY_INSTRUCTIONS.md). If your build differs
+> (different tip length, deck shim, mount), remeasure them by hand and edit
+> the `z_heights:` block — see [docs/SETUP.md §4](../../docs/SETUP.md#4-calibrate-z-heights).
 
-Before running the protocol, verify the gantry moves correctly:
-
-```bash
-python ../hello_cnc/hello_cnc.py
-```
-
-If the machine homes, jogs, and toggles the spindle, you're good. If not, fix
-the COM port / bounds in `cnc_config.yaml` first.
-
-## 4. Calibrate Z heights
-
-```bash
-python z_helper.py
-```
-
-Interactive: jogs Z at coarse/medium/fine steps for each (tool, labware,
-action) combo and writes the results to `output/z_calibration.yaml`. Copy
-those into the `z_heights:` block of [`tools/cnc_config.yaml`](tools/cnc_config.yaml).
-
-## 5. Run
+## 3. Run
 
 ```bash
 python protocols/serial_dilution_demo.py
@@ -89,7 +73,6 @@ liquid_handling/
 ├── README.md
 ├── ASSEMBLY_INSTRUCTIONS.md
 ├── requirements.txt
-├── z_helper.py                     # Z calibration helper (interactive)
 ├── protocols/
 │   └── serial_dilution_demo.py     # the protocol (main entry point)
 ├── tools/
@@ -110,5 +93,5 @@ To adapt for a different tool or protocol:
 1. **Copy this folder** to a new directory (e.g. `examples/peristaltic_pump/` or your own repo).
 2. **Replace the driver.** Drop your vendor driver into `tools/` (e.g. `pump_driver.py`) and write a thin wrapper (`tools/pump.py`) exposing the methods your protocol needs.
 3. **Add a tool config.** Create `tools/<tool>_config.yaml` with the tool's serial port, mounting offset, and any tool-specific parameters.
-4. **Edit `cnc_config.yaml`.** Update `deck:` slot roles + labware comments to match your deck. Calibrate Z heights with `z_helper.py`.
+4. **Edit `cnc_config.yaml`.** Update `deck:` slot roles + labware comments to match your deck. Measure Z heights by hand (jog with a GRBL UI like [Candle](https://docs.sainsmart.com/article/bj9o96wcbc-how-to-set-up-use-candle-for-multiple-operations) or `cnc.move_to_point(...)` from a Python shell) and write them into `z_heights:` — see [docs/SETUP.md §4](../../docs/SETUP.md#4-calibrate-z-heights).
 5. **Write your protocol** in `protocols/`. Load the two configs at the top and use the tool wrapper. The dilution demo is a worked reference.

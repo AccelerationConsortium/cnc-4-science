@@ -158,8 +158,8 @@ but in practice there are too many independently-variable terms (deck shim
 thickness, labware seating, tool mounting height, tip length per box) — getting
 any one of them wrong by 1 mm crashes the tool. Rather than maintain four
 calibration knobs that all have to agree, we collapse them into a single
-empirical number per (tool, labware, action) tuple measured with `z_helper.py`.
-See step 4.
+empirical number per (tool, labware, action) tuple, measured by hand once and
+pinned in `tools/cnc_config.yaml`. See step 4.
 
 Access wells by name once loaded:
 
@@ -352,20 +352,29 @@ In theory you could measure each term separately and add them. In practice
 that's four chances to be wrong by a millimeter, and a millimeter is the
 difference between aspirating from the floor and ramming the pipette through
 the plate. The simpler and more reliable approach: ignore the breakdown and
-measure the *final* Z empirically per (tool, labware, action). That's what
-`z_helper.py` is for.
+measure the *final* Z empirically per (tool, labware, action), once, then
+pin the numbers in `tools/cnc_config.yaml` under `z_heights:`.
 
-```bash
-python z_helper.py
-```
+### Procedure
 
-[examples/liquid_handling/z_helper.py](../examples/liquid_handling/z_helper.py)
-(and the equivalent [examples/vacuum_pick_and_place/z_helper.py](../examples/vacuum_pick_and_place/z_helper.py))
-moves the tool tip (with offset applied) over a chosen slot/well, then lets
-you jog Z in coarse → medium → fine steps until the tip kisses the surface
-you care about (tip pickup, aspirate floor, dispense height, etc.). It writes
-the result to `output/z_calibration.yaml`. Copy the numbers into the
-`z_heights:` block of `tools/cnc_config.yaml`:
+With the tool mounted and the deck installed, for each (labware, action) pair:
+
+1. Open a GRBL UI like [Candle](https://docs.sainsmart.com/article/bj9o96wcbc-how-to-set-up-use-candle-for-multiple-operations)
+   (or use `CNC_Machine` from a Python REPL, e.g. `cnc.move_to_point(...)`).
+2. Move XY over the relevant well — use the labware's well coordinates plus
+   your tool offset: `plate["A1"].position(offset=tool.offset)`.
+3. Jog Z down in coarse steps (~2 mm), then medium (~0.5 mm), then fine
+   (~0.1 mm) until the tool tip kisses the surface you care about
+   (tip-pickup engages near the top of a tip; `plate_aspirate` reaches the
+   well floor — same labware, different Z).
+4. Read the absolute Z off the controller and write it into the
+   `z_heights:` block of `tools/cnc_config.yaml`.
+
+Do this once per build. The shipped examples come with `z_heights:` already
+filled in for their reference build (see each example's
+`ASSEMBLY_INSTRUCTIONS.md`); if your build matches, you don't need to
+remeasure. If you replace a tool, reseat labware, or change a shim,
+remeasure only the affected entries.
 
 ```yaml
 z_heights:
@@ -378,7 +387,7 @@ z_heights:
 
 These are the named Z values the protocol uses. The XY of each well comes
 from labware; the Z comes from this block. If you replace a tool or reseat a
-labware, recalibrate the affected entries.
+labware, remeasure the affected entries.
 
 ---
 
@@ -461,14 +470,14 @@ Status strings are application-defined. State is auto-persisted to YAML in
 
 | Step | What you do                                  | Where it lives                          |
 | ---: | -------------------------------------------- | --------------------------------------- |
-|    1 | Run `hello_cnc.py` to verify the gantry      | `examples/hello_cnc/`                   |
+|    1 | Run `hello_cnc.py` once to verify the gantry | `examples/hello_cnc/`                   |
 |    2 | Copy `examples/liquid_handling/` as template | `your_project/`                         |
 |    3 | Edit deck slot positions (rarely)            | custom `deck.json` or built-in          |
 |    4 | Load labware (Opentrons name, JSON, or grid) | `custom_labware/`, `location_status.yaml`|
 |    5 | Drop in vendor driver                        | `tools/<vendor>_driver.py`              |
 |    6 | Write thin tool wrapper                      | `tools/<tool>.py`                       |
 |    7 | Measure XY/Z offset spindle → tool tip       | `tools/<tool>_config.yaml` → `offset:`  |
-|    8 | Calibrate Z with `z_helper.py`               | `tools/cnc_config.yaml` → `z_heights:`  |
+|    8 | Measure Z heights by hand (see §4)           | `tools/cnc_config.yaml` → `z_heights:`  |
 |    9 | Write the workflow against config + wrapper  | `protocols/<workflow>.py`               |
 |   10 | Dry-run with `virtual: true`, then hardware  | `tools/cnc_config.yaml`                 |
 
