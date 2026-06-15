@@ -6,10 +6,10 @@ build-backend = "setuptools.build_meta"
 name = "cnc-4-science"
 version = "0.9.1"
 description = "Control library for Genmitsu CNC machines used as low-cost lab automation platforms (liquid handling, fraction collection, vision-based capping, etc.)."
-readme = {file = "README_PYPI.md", content-type = "text/markdown"}
+readme = {file = "docs/README_PYPI.md", content-type = "text/markdown"}
 requires-python = ">=3.9"
 license = "GPL-3.0-or-later"
-license-files = ["LICENSE"]
+license-files = ["docs/LICENSE"]
 authors = [
   { name = "Owen Melville" },
   { name = "Kelvin Chow" },
@@ -36,7 +36,7 @@ dependencies = [
 Homepage = "https://github.com/AccelerationConsortium/cnc-4-science"
 Repository = "https://github.com/AccelerationConsortium/cnc-4-science"
 Issues = "https://github.com/AccelerationConsortium/cnc-4-science/issues"
-Changelog = "https://github.com/AccelerationConsortium/cnc-4-science/blob/main/CHANGELOG.md"
+Changelog = "https://github.com/AccelerationConsortium/cnc-4-science/blob/main/docs/CHANGELOG.md"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
