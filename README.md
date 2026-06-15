@@ -1,20 +1,47 @@
 <h1>cnc-4-science</h1>
 
-> Turn a low-cost Genmitsu CNC into a self-driving lab module.
+> Turn a low-cost, hobbyist CNC into a self-driving lab module.
 
-`cnc-4-science` is a Python control library for Genmitsu (GRBL) CNC routers
-used as gantries for **scientific automation** — liquid handling, fraction
-collection, vision-based capping, pick-and-place, fraction collection,
-indentation, and any other workflow that maps cleanly to "move this tool to
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <a href="https://youtu.be/hJAHL1_uhBs"><img src="media/liquid_handling_cnc_5x_speed.gif" alt="Liquid handling demo (5x speed) — click to watch full video" width="100%" /></a>
+      <br/><sub><a href="examples/liquid_handling/">Liquid handling</a> · <a href="https://youtu.be/hJAHL1_uhBs">full video</a></sub>
+    </td>
+    <td align="center" width="50%">
+      <a href="https://youtu.be/-8ptOuS6o5s"><img src="media/pick_and_place_cnc_5x_speed.gif" alt="Pick-and-place demo (5x speed) — click to watch full video" width="100%" /></a>
+      <br/><sub><a href="examples/vacuum_pick_and_place/">Pick and place</a> · <a href="https://youtu.be/-8ptOuS6o5s">full video</a></sub>
+    </td>
+  </tr>
+</table>
+
+`cnc-4-science` is a Python control library for **low-cost, easy-to-assemble,
+open-source GRBL CNC routers** used as the gantry for scientific automation.
+The target hardware is the kind of CNC a scientist can buy off the shelf for
+a few hundred dollars, put together over a weekend, modify with 3D-printed
+parts, and drive from Python — no proprietary controller, no vendor SDK, no
+custom firmware. The reference examples in this repo run on a Genmitsu
+3018-PROVer V2, but the library is GRBL-generic and works on any equivalent
+machine.
+
+It's the foundation for building things like **liquid handling** and
+**pick-and-place of vials / consumables / small parts** (the two shipped
+examples), and any other workflow that fits the pattern "move this tool to
 that well and do something." Each module is built around a 3-step workflow:
 
-| 1. Mount a Tool | 2. Define the Deck | 3. Write a Workflow |
+| 1. Install a tool | 2. Configure the deck | 3. Write the workflow in Python |
 | --- | --- | --- |
-| Bolt a 3D-printed mount + your instrument onto the spindle carriage. Wire it through the GRBL spindle terminals (M3/M5) or a separate serial port. | Describe your labware and slot positions in YAML — Opentrons-compatible labware or custom JSON definitions. | Drive everything from Python: `cnc.move_to_location(...)`, `tool.do_thing()`. The library handles G-code, bounds checking, and alarm recovery. |
+| Design and install your instrument on the CNC carriage \u2014 a pipette, a vacuum gripper, a fraction needle, whatever the workflow needs. The mechanical interface is a 3D-printed bracket; the rest is up to the tool. | Decide what labware and external modules sit on the deck and where. Describe it in YAML \u2014 standard SBS plates and tipracks via [Opentrons](https://labware.opentrons.com/#/create) definitions, or open / custom JSON for larger external modules that don't fit the SBS footprint. | Write a Python protocol against `cnc_machine_core` and a thin tool wrapper. The two YAML files (`tools/cnc_config.yaml` + `tools/<tool>_config.yaml`) hold every setup-specific number; the protocol stays portable. |
 
 ```bash
 pip install cnc-4-science
 ```
+
+See [`examples/README.md`](examples/README.md) for the standard 3-step user
+journey every example follows. To bootstrap a brand-new CNC module with an
+LLM coding agent, point it at [`examples/AGENTS.md`](examples/AGENTS.md) \u2014
+it documents the directory layout, config schema, and tool-wrapper contract
+that every example follows.
 
 ---
 
@@ -23,14 +50,11 @@ pip install cnc-4-science
 Each example below is a complete, copyable project. Order the parts, follow
 the assembly guide (~1 hour), set up the venv, edit two YAML files, and run.
 
-| Example | Tool | Workflow | Photos / videos |
-| ------- | ---- | -------- | --------------- |
-| [`hello_cnc/`](examples/hello_cnc/) | Stock spindle | Home, move, spindle on/off — the hardware smoke test | _TBD_ |
-| [`liquid_handling/`](examples/liquid_handling/) | Sartorius Picus 2 pipette | Serial dilution across a 24-well plate | _TBD_ |
-| [`vacuum_pick_and_place/`](examples/vacuum_pick_and_place/) | Vacuum gripper (spindle-driven) | Physical tic-tac-toe — CLI + optional browser UI | _TBD_ |
-
-See [`examples/README.md`](examples/README.md) for the standard 3-step user
-journey every example follows.
+| Example | Tool | Workflow | Sample workflow video |
+| ------- | ---- | -------- | --------------------- |
+| [`hello_cnc/`](examples/hello_cnc/) | Stock spindle | Home, move, spindle on/off — the hardware smoke test |   |
+| [`liquid_handling/`](examples/liquid_handling/) | Sartorius Picus 2 pipette | Serial dilution across a 24-well plate | [YouTube](https://youtu.be/hJAHL1_uhBs) |
+| [`vacuum_pick_and_place/`](examples/vacuum_pick_and_place/) | Vacuum gripper (spindle-driven) | Physical tic-tac-toe — CLI + optional browser UI | [YouTube](https://youtu.be/-8ptOuS6o5s) |
 
 ---
 
@@ -95,18 +119,34 @@ coordinate resolution:
 
 ```python
 from cnc_machine_core import Deck
+from opentrons_shared_data.labware import load_definition
 
-deck = Deck()                                                # standard 4-slot deck
-plate = deck.load_labware("1", "labware/my_labware.json")    # returns Labware
+deck = Deck("cnc_4_slot_deck")                               # built-in 4-slot deck (Genmitsu 3018)
 
-well = plate["A1"]
-x, y, z = well.position()
-x, y, z = well.position(offset={"x": 6.75, "y": -4.0})       # with tool offset
+# Standard SBS labware: load by Opentrons load name (no JSON file of your own).
+plate = deck.load_labware_definition(
+    "1", load_definition("corning_96_wellplate_360ul_flat", 1)
+)
+
+# Or a custom JSON for non-SBS gear (see custom_labware/ in the examples):
+# plate = deck.load_labware("1", "custom_labware/my_rack.json")
+
+x, y, z = plate["A1"].position()                             # absolute CNC coordinates
 ```
 
-Built-in decks (pass by name or path to a custom JSON):
+Protocols add the tool's XY offset at the call site —
+`plate["A1"].position(offset=tool.offset)` — see
+[`examples/liquid_handling/protocols/serial_dilution_demo.py`](examples/liquid_handling/protocols/serial_dilution_demo.py)
+or [`examples/vacuum_pick_and_place/game_session.py`](examples/vacuum_pick_and_place/game_session.py)
+for the live pattern.
 
-- `cnc_4_slot_deck` — standard 4-slot (2×2) **[default]**
+Built-in decks — pick one explicitly (there is no default; the CNC footprint
+should be visible at the call site):
+
+- `cnc_4_slot_deck` — standard 4-slot (2×2), sized for the Genmitsu
+  3018-PROVer V2 (~300×180 mm bed). Larger CNCs (3040, 6040, …) will likely
+  want a custom deck with more slots — copy the JSON and re-measure the
+  slot corners.
 - `cnc_1_slot_deck` — single open slot at origin (no labware required)
 
 Labware definitions are created with the

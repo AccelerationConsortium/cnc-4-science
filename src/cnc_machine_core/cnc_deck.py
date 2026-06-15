@@ -5,13 +5,17 @@ Works with Opentrons-format labware JSON definitions.
 
 Usage:
     from cnc_machine_core import Deck
+    from opentrons_shared_data.labware import load_definition
 
-    deck = Deck()                                    # default 4-slot deck
+    deck = Deck("cnc_4_slot_deck")                   # built-in, sized for Genmitsu 3018
     deck = Deck("cnc_1_slot_deck")                   # built-in by name
-    deck = Deck("path/to/custom_deck.json")          # custom path
-    plate = deck.load_labware("1", "labware/my_labware.json")
+    deck = Deck("path/to/custom_deck.json")          # custom path (e.g. for a 3040 / 6040 CNC)
+
+    plate = deck.load_labware_definition(
+        "1", load_definition("corning_96_wellplate_360ul_flat", 1)
+    )
     x, y, z = plate["A1"].position()                 # absolute CNC coordinates
-    x, y, z = plate["A1"].position(offset={"x": 6.75, "y": -4.0})
+    x, y, z = plate["A1"].position(offset=tool.offset)  # add tool offset at call site
 
     # Or use raw coordinates without any deck/labware:
     cnc.move_to_point_safe(100, 50, -10)
@@ -21,17 +25,21 @@ import json
 import os
 
 _DECK_DIR = os.path.join(os.path.dirname(__file__), "deck")
-DEFAULT_DECK = "cnc_4_slot_deck"
 
 
 def _resolve_deck_path(deck_definition):
     """Resolve a deck argument to a JSON file path.
 
-    Accepts: None (default deck), a built-in deck name (e.g. "cnc_4_slot_deck"),
-    or a path to a custom JSON file.
+    Accepts a built-in deck name (e.g. "cnc_4_slot_deck") or a path to a
+    custom JSON file. No default — callers must pick a deck explicitly so the
+    CNC footprint is visible at the call site.
     """
     if deck_definition is None:
-        return os.path.join(_DECK_DIR, f"{DEFAULT_DECK}.json")
+        raise ValueError(
+            "Deck() requires a deck definition. Pass a built-in name "
+            "(e.g. 'cnc_4_slot_deck' for the Genmitsu 3018, 'cnc_1_slot_deck' "
+            "for an open layout) or a path to a custom JSON."
+        )
     if os.path.sep in deck_definition or deck_definition.endswith(".json"):
         return deck_definition
     return os.path.join(_DECK_DIR, f"{deck_definition}.json")
@@ -123,7 +131,7 @@ class Labware:
 class Deck:
     """Standard CNC deck with slot-based labware management."""
 
-    def __init__(self, deck_definition=None):
+    def __init__(self, deck_definition):
         path = _resolve_deck_path(deck_definition)
         with open(path, "r", encoding="utf-8") as f:
             self._deck = json.load(f)

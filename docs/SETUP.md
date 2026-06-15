@@ -68,16 +68,24 @@ CNC bed.
 
 ### Two built-in decks
 
+Both shipped definitions are **sized for the Genmitsu 3018-PROVer V2**
+(~300×180 mm bed). Larger CNCs (3040, 6040, etc.) will usually want a
+custom deck with more / larger slots — copy `cnc_4_slot_deck.json` and
+re-measure the slot corners.
+
+There is no default — always pass an explicit deck name (or path) so the
+CNC footprint is visible at the call site.
+
 | Definition           | Layout       | Use case                                    |
 | -------------------- | ------------ | ------------------------------------------- |
-| `cnc_4_slot_deck`    | 2×2 SBS-ish  | Multi-labware protocols (the default).      |
+| `cnc_4_slot_deck`    | 2×2 SBS-ish  | Multi-labware protocols on the 3018.        |
 | `cnc_1_slot_deck`    | Open / origin| Single fixture; or pure raw-coordinate use. |
 
 ```python
 from cnc_machine_core import Deck
 
-deck = Deck()                       # cnc_4_slot_deck (default)
-deck = Deck("cnc_1_slot_deck")      # built-in by name
+deck = Deck("cnc_4_slot_deck")      # 4-slot, Genmitsu 3018 footprint
+deck = Deck("cnc_1_slot_deck")      # open / single fixture
 deck = Deck("path/to/my_deck.json") # custom JSON
 ```
 
@@ -125,7 +133,7 @@ Load it by load name with no JSON files of your own:
 from opentrons_shared_data.labware import load_definition
 from cnc_machine_core import Deck
 
-deck = Deck()
+deck = Deck("cnc_4_slot_deck")
 plate_def = load_definition("corning_24_wellplate_3.4ml_flat", 1)
 plate = deck.load_labware_definition("1", plate_def)
 ```

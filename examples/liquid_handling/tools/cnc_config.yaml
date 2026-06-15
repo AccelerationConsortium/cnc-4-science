@@ -28,14 +28,18 @@ z_heights:
 
 tip_path_y_offset: 15.0   # Y offset used when approaching the tip rack
 
-# Deck layout for the 4-slot CNC deck.
+# Deck layout for the 4-slot CNC deck (sized for the Genmitsu 3018).
 # Slot numbers follow Opentrons convention: 1=front-left, 2=front-right,
 # 3=back-left, 4=back-right. Must match deck_preset.yaml and the labware
 # loaded in the protocol.
 deck:
   definition: cnc_4_slot_deck   # Built-in deck (see cnc_machine_core/deck/).
-                                # Use cnc_1_slot_deck for the open layout,
-                                # or a path to a custom JSON.
+                                # Sized for the Genmitsu 3018-PROVer V2.
+                                # Required — there is no default. For a larger
+                                # CNC (e.g. 3040, 6040) copy the JSON,
+                                # remeasure slot corners, and pass the path
+                                # here. Use cnc_1_slot_deck for the open
+                                # layout.
   slots:
     plate:     "1"   # corning_24_wellplate_3.4ml_flat  (dilution target)
     tips:      "2"   # sartorius_24_tiprack_5000ul       (5000µL tips)

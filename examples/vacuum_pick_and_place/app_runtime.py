@@ -45,7 +45,7 @@ def build_session():
     move_speed = cnc_cfg.get("move_speed", 2500)
     z = cnc_cfg["z_heights"]
     slots = cnc_cfg["deck"]["slots"]
-    deck_def = cnc_cfg["deck"].get("definition")
+    deck_def = cnc_cfg["deck"]["definition"]
     travel = cnc_cfg.get("travel")  # None -> straight-line moves
 
     cnc = CNC_Machine.from_config(CNC_CONFIG_PATH)
@@ -53,7 +53,7 @@ def build_session():
     if not virtual:
         cnc.home()
 
-    deck = Deck(deck_def) if deck_def else Deck()
+    deck = Deck(deck_def)
     deck.load_labware(slots["storage"], str(STORAGE_LABWARE))
     deck.load_labware(slots["gameboard"], str(GAMEBOARD_LABWARE))
 

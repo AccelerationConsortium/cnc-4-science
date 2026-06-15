@@ -18,6 +18,11 @@ examples/**/output/
 # BOM master spreadsheets (CSV exports are the tracked source of truth)
 *.xlsx
 
+# Large demo videos — hosted on YouTube, only the preview gifs are tracked
+media/*.mp4
+media/*.mov
+media/*.webm
+
 # Editor / OS
 .vscode/
 .idea/

@@ -48,7 +48,7 @@ and edit the values. Required keys:
 | `virtual` | `true` = log G-code only, no hardware |
 | `move_speed` | mm/min for XY travel |
 | `z_heights` | per-action Z (measured by hand once — see [docs/SETUP.md §4](../docs/SETUP.md#4-calibrate-z-heights)) |
-| `deck.definition` | deck JSON id (e.g. `cnc_4_slot_deck`) — omit for default |
+| `deck.definition` | deck JSON id (e.g. `cnc_4_slot_deck` — sized for the Genmitsu 3018; copy and remeasure for larger CNCs). Required — there is no default. |
 | `deck.slots` | **role-keyed** map, e.g. `storage: "3"`, `gameboard: "4"` |
 | `travel` *(optional)* | dogleg routing — see [`vacuum_pick_and_place`](vacuum_pick_and_place/tools/cnc_config.yaml) |
 

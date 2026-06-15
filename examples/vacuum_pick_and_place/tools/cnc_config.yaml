@@ -41,6 +41,9 @@ z_heights:
 
 # Deck layout. Slot IDs follow the cnc_4_slot_deck convention:
 # 1 = front-left, 2 = front-right, 3 = back-left, 4 = back-right.
+# The cnc_4_slot_deck definition is sized for the Genmitsu 3018-PROVer V2;
+# for a larger CNC (3040, 6040, etc.) copy the JSON, remeasure the slot
+# corners, and pass the path as `definition:`.
 deck:
   definition: cnc_4_slot_deck
   slots:
