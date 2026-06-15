@@ -9,6 +9,9 @@ and you can move on to a real protocol like
 [liquid_handling/](../liquid_handling/) or
 [vacuum_pick_and_place/](../vacuum_pick_and_place/).
 
+For the hardware build itself (~1 hour), see
+[ASSEMBLY_INSTRUCTIONS.md](ASSEMBLY_INSTRUCTIONS.md).
+
 ## Run
 
 ```bash

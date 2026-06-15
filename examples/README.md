@@ -6,7 +6,7 @@ edit it.
 
 | Example | Hardware | Software |
 | ------- | -------- | -------- |
-| [`hello_cnc/`](hello_cnc/) | None beyond the base CNC | [README](hello_cnc/README.md) — **run this first as a smoke test** |
+| [`hello_cnc/`](hello_cnc/) | [ASSEMBLY_INSTRUCTIONS.md](hello_cnc/ASSEMBLY_INSTRUCTIONS.md) (~1 hr) — base CNC only | [README](hello_cnc/README.md) — **run this first as a smoke test** |
 | [`liquid_handling/`](liquid_handling/) | [ASSEMBLY_INSTRUCTIONS.md](liquid_handling/ASSEMBLY_INSTRUCTIONS.md) (~1 hr) | [README](liquid_handling/README.md) |
 | [`vacuum_pick_and_place/`](vacuum_pick_and_place/) | [ASSEMBLY_INSTRUCTIONS.md](vacuum_pick_and_place/ASSEMBLY_INSTRUCTIONS.md) (~1 hr) | [README](vacuum_pick_and_place/README.md) |
 

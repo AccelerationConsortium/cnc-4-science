@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- **BOM tables populated** in each example's `ASSEMBLY_INSTRUCTIONS.md` from the upstream `docs/bom.xlsx` (sheets `hello_cnc`, `liquid_handling_cnc_demo`, `pick_and_place_cnc_demo`). Each example also gets a sibling `bom.csv` exported from the same sheet so the parts list is diffable and renders directly on GitHub.
+- New `examples/hello_cnc/ASSEMBLY_INSTRUCTIONS.md` covering the base-CNC build (the smoke test had no assembly doc before).
 - **License changed from MIT to GPL-3.0-or-later.** Updated `LICENSE` to the full GNU GPL v3 text and `pyproject.toml`'s `license` field accordingly.
 - **README restructured** around the 3-step workflow (Mount a Tool → Define the Deck → Write a Workflow). Trimmed redundancy: removed the long "Starting a New Application" section (now covered by [docs/SETUP.md](docs/SETUP.md) and the per-example READMEs). Moved authors and acknowledgements to the bottom. Added an acknowledgement to the [KABLab](https://sites.bu.edu/kablab/) at Boston University with a citation to *List et al., "ASMI: An automated, low-cost indenter for soft matter", HardwareX 20, e00601 (2024)*.
 - **Z calibration helper docs**: the helper is shipped per-example (`examples/<name>/z_helper.py`) — README and `docs/SETUP.md` now link to both shipped variants instead of only the liquid_handling one.

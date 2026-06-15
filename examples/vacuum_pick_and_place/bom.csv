@@ -1,0 +1,33 @@
+Bill of Materials,,,,,
+Project,pick_and_place_CNC_demo,,,,
+Description,moving HPLC vials to play-tic-tac-toe using a 3018 CNC and a vacuum gripper,,,,
+Revision,A,,,,
+Date,2026-06-14 00:00:00,,,,
+Purchased Parts,,,,,
+#,Part Description,Quantity,~ Cost (USD),Link,Notes
+A1,Genmitsu 3018- PROVer V2 CNC,1,256,https://www.amazon.ca/Genmitsu-3018-PROVer-Beginner-Emergency-Stop-Spoilboard/dp/B0CMTJ6CZC/ref=sr_1_6?dib=eyJ2IjoiMSJ9.HHBBIt5le3b3pcaPQECCgnpcDD7SwHdjB1PodlE0RK9NnOXzFUTXrWJayEAwiM6Jxk7qbLn5RM97uhGW9UmQPXGzgtmsR9aLcf0Hj8ChlntxifqXZ4FCTd8DuTDBUgNZg0o1WHtOWK0C7Sw3m8P9CNp6GqOBG7CbVpXHqPRcYNdnQr4PpQ7Xq7DZKNXwsDHSv8b3ZhLenlLxGpTWZ-bFanMKP3J5rh4XX2YCKoxM12a-AZsTlg2tqAyfpOVhnJjMRb_bNRFnRjqzI0HetVO5Sji6-jtkFDBPODF0NKFINk0.BS2DeIcHiA20892b9rp_M2_gQXqMz2ClR3FF2isohvs&dib_tag=se&keywords=cnc%2B3018&qid=1781473459&sr=8-6&th=1,follow assembly manual up to section 3 except for steps 2.4/2.5 for spindle and acrylic panels (https://docs.sainsmart.com/article/appuv0ufmb-3018-prover-v-2)
+A2,12V vacuum pump,1,25.5,https://www.sparkfun.com/vacuum-pump-12v.html,this pump is the same voltage and has the same electrical tabs as the CNC spindle
+A3,"suction cup, 0,35in cup,bellows, 10-32 thread",1,13.5,https://www.mcmaster.com/3766A135/,diameter about the size of an hplc vial
+A4,"barbed connector, 1/8in ID, 10-32 thread",1,2.84,https://www.mcmaster.com/5058K726-5058K222/,connects to suction cup
+A5,"barbed connector, 1/4in OD, 1/4in ID",1,4.34,https://www.mcmaster.com/9406T24/,step down adapter
+A6,muffler,1,5.38,https://www.mcmaster.com/products/8457t82/,"optional, quiets the vacuum pump"
+A7,"tubing, 1/4in ID, 3/8in OD, 5cm",2,0,https://www.mcmaster.com/5103K34/,directly to the suction cup/barb
+A8,"tubing, 1/8in ID, 1/4in OD, 30cm",1,0,https://www.mcmaster.com/5103K32/,"outer diameter is not important. Tube material needs to withstand medium vacuum. One to adapter to suction cup, one to muffler"
+A9,M6x6mm flathead screws,4,0,-,between 5mm to 10mm length screw should be ok. For screwing in deck slots
+A10,M3x6mm set screw,5,0,,other M3 screws with different length/type will work
+A11,M3x6mm flathead screws,2,0,,
+A12,M3 heat set inserts,6,0,,
+3D Printed Parts,,,,,
+#,Part Name,Quantity,Notes,,
+B1,deck-slot-standard.stl,2,screws into CNC deck,,
+B2,vacuum-pump-mounting-plate.stl,1,mounts vacuum pump onto the CNC moving toolhead,,
+B3,vacuum-gripper-toolhead-mount.stl,1,toolhead mount,,
+B4,suction-cup-holder.stl,1,screws into toolhead mount to hold the gripper,,
+B5,M6-thumb-screws.stl,4,for securing labware into deck slots. any M6 screw will work. This was directly modified/printed from here https://www.mcmaster.com/92545A183/,,
+Other Physical Requirements ,,,,,
+A computer (Windows / macOS / Linux) with a USB-A port (or necessary dongle) to connect to the CNC over USB serial.,,,,,
+soldering iron for installing heat set inserts,,,,,
+Allen keys and screwdrivers,,,,,
+Changelog,,,,,
+Revision,Description,Date,Author,,
+A,Initial Release,2026-06-14 00:00:00,KC,,
