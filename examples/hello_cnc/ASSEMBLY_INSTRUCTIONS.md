@@ -5,8 +5,7 @@ This is what every example builds on top of.
 
 **Target time:** ~1 hour, once parts are in hand.
 
-Source of truth for this BOM is [bom.csv](bom.csv) (sheet `hello_cnc` of
-[`docs/bom.xlsx`](../../docs/bom.xlsx)).
+Source of truth for this BOM is [hello_cnc_bom.csv](hello_cnc_bom.csv).
 
 ---
 

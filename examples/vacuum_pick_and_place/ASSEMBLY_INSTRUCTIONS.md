@@ -7,8 +7,7 @@ gripper.
 
 **Target time:** ~1 hour, once parts are in hand and 3D-printed.
 
-Source of truth for this BOM is [bom.csv](bom.csv) (sheet
-`pick_and_place_cnc_demo` of [`docs/bom.xlsx`](../../docs/bom.xlsx)).
+Source of truth for this BOM is [vacuum_pick_and_place_bom.csv](vacuum_pick_and_place_bom.csv).
 
 When you're done here, jump back to the [README](README.md) for the software
 setup (venv → `pip install` → configure YAML → smoke test → run).

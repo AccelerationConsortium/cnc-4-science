@@ -15,6 +15,9 @@ dist/
 # Per-protocol runtime output (calibration files, deck state snapshots)
 examples/**/output/
 
+# BOM master spreadsheets (CSV exports are the tracked source of truth)
+*.xlsx
+
 # Editor / OS
 .vscode/
 .idea/
