@@ -240,7 +240,7 @@ serial port).
 Authors: Owen Melville, Kelvin Chow.
 
 CNC-based scientific instruments inspired by the
-[Keith Brown Lab](https://sites.bu.edu/kablab/) at Boston University [[1]] [[2]].
+[Keith Brown Lab](https://sites.bu.edu/kablab/) [[1]] [[2]].
 
 [1]: https://doi.org/10.1039/D4MH00797B
 [2]: https://doi.org/10.1016/j.ohx.2024.e00601
