@@ -14,7 +14,7 @@ the controller can switch is a one-file change.
 
 ---
 
-## 1. Hardware setup (~1 hour)
+## 1. Hardware setup
 
 See [ASSEMBLY_INSTRUCTIONS.md](ASSEMBLY_INSTRUCTIONS.md) for the full BOM,
 print list, wiring, and step-by-step build. Come back here when the gantry is

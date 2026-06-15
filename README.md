@@ -47,9 +47,6 @@ that every example follows.
 
 ## Reference applications
 
-Each example below is a complete, copyable project. Order the parts, follow
-the assembly guide (~1 hour), set up the venv, edit two YAML files, and run.
-
 | Example | Tool | Workflow | Sample workflow video |
 | ------- | ---- | -------- | --------------------- |
 | [`hello_cnc/`](examples/hello_cnc/) | Stock spindle | Home, move, spindle on/off — the hardware smoke test |   |
@@ -62,7 +59,7 @@ the assembly guide (~1 hour), set up the venv, edit two YAML files, and run.
 
 ```bash
 # 1. Pick an example and read its README + ASSEMBLY_INSTRUCTIONS.md.
-#    Order/print the parts, assemble the hardware (~1 hour).
+#    Order/print the parts and assemble the hardware.
 
 # 2. From the example folder:
 python -m venv .venv

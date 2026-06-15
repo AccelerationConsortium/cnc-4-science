@@ -5,8 +5,6 @@ pump is wired into the CNC's spindle terminals, so GRBL's `M3` / `M5` toggles
 the suction — no separate microcontroller or USB cable is needed for the
 gripper.
 
-**Target time:** ~1 hour, once parts are in hand and 3D-printed.
-
 Source of truth for this BOM is [pick_and_place_CNC_demo_bom.csv](pick_and_place_CNC_demo_bom.csv).
 
 When you're done here, jump back to the [README](README.md) for the software

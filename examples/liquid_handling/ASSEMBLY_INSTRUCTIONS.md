@@ -2,8 +2,6 @@
 
 Full hardware build for the Picus-pipette serial-dilution example.
 
-**Target time:** ~1 hour, once parts are in hand and 3D-printed.
-
 Source of truth for this BOM is [liquid_handling_CNC_demo_bom.csv](liquid_handling_CNC_demo_bom.csv).
 
 When you're done here, jump back to the [README](README.md) for the software
