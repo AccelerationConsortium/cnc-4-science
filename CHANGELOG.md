@@ -1,6 +1,11 @@
 # Changelog
 
 ## Unreleased
+- **CAD files moved per-example.** The top-level `3d printing files/` dump is gone; each example now ships its 3D-printed parts in its own `cad/{step,stl}/` folder.
+  - [`examples/liquid_handling/cad/`](examples/liquid_handling/cad/): `100mm-z-spacer`, `deck-slot-5mm-offset`, `deck-slot-standard`, `M6_thumb_screw`, `sartorius_24_tiprack_5000ul`, `sartorius-5000uL-pipette-tool-holder-A`, `sartorius-5000uL-pipette-tool-holder-B`.
+  - [`examples/vacuum_pick_and_place/cad/`](examples/vacuum_pick_and_place/cad/): `deck-slot-standard`, `M6_thumb_screw`, `suction_cup_holder`, `vacuum-gripper-toolhead-mount`, `vacuum-pump-mounting-plate`.
+  - Shared parts (`deck-slot-standard`, `M6_thumb_screw`) are duplicated under each example so each one is a self-contained build (\u003c1 MB extra total).
+- **Assembly typo fixes.** `deck-slot-5mm-taller.stl` \u2192 `deck-slot-5mm-offset.stl`, `M6-thumb-screws.stl` \u2192 `M6_thumb_screw.stl`, `suction-cup-holder.stl` \u2192 `suction_cup_holder.stl` in the two `ASSEMBLY_INSTRUCTIONS.md`. Every print-row in the BOM is now a clickable link to its `cad/stl/` file.
 
 ## 0.9.1 - 2026-06-15
 - **Separate PyPI README.** `pyproject.toml` now points `readme` at a new `README_PYPI.md` — a slim, text-only API summary (`CNC_Machine`, `Deck`, `DeckState`, minimal `cnc_config.yaml`) with a link out to the full GitHub README for hardware/build docs and example projects. The GitHub `README.md` stays as the rich landing page (hero gifs, reference applications, full API reference).

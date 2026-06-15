@@ -33,13 +33,16 @@ setup (venv → `pip install` → configure YAML → run).
 
 ## 3D-printed parts
 
+STL + STEP files live in [`cad/`](cad/) (`cad/stl/` to send straight to the
+slicer, `cad/step/` to remix in CAD).
+
 | # | Part name | Qty | Notes |
 | - | --------- | --: | ----- |
-| B1 | `deck-slot-standard.stl` | 2 | Screws into the CNC bed. |
-| B2 | `vacuum-pump-mounting-plate.stl` | 1 | Mounts the pump onto the moving toolhead. |
-| B3 | `vacuum-gripper-toolhead-mount.stl` | 1 | Toolhead mount. |
-| B4 | `suction-cup-holder.stl` | 1 | Screws into the toolhead mount and holds the gripper. |
-| B5 | `M6-thumb-screws.stl` | 4 | For securing labware into deck slots. Any M6 screw works; based on [McMaster 92545A183](https://www.mcmaster.com/92545A183/). |
+| B1 | [`deck-slot-standard.stl`](cad/stl/deck-slot-standard.stl) | 2 | Screws into the CNC bed. |
+| B2 | [`vacuum-pump-mounting-plate.stl`](cad/stl/vacuum-pump-mounting-plate.stl) | 1 | Mounts the pump onto the moving toolhead. |
+| B3 | [`vacuum-gripper-toolhead-mount.stl`](cad/stl/vacuum-gripper-toolhead-mount.stl) | 1 | Toolhead mount. |
+| B4 | [`suction_cup_holder.stl`](cad/stl/suction_cup_holder.stl) | 1 | Screws into the toolhead mount and holds the gripper. |
+| B5 | [`M6_thumb_screw.stl`](cad/stl/M6_thumb_screw.stl) | 4 | For securing labware into deck slots. Any M6 screw works; based on [McMaster 92545A183](https://www.mcmaster.com/92545A183/). |
 
 ## Also required
 
