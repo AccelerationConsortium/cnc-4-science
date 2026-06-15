@@ -71,6 +71,8 @@ python -m venv .venv
 pip install -r requirements.txt
 
 # 3. Edit tools/cnc_config.yaml (COM port, travel bounds) and the tool config.
+#    See docs/SETUP.md §0 for how to find the serial port on Windows / macOS / Linux
+#    and how to measure your CNC's travel envelope.
 
 # 4. Run the protocol.
 python protocols/<name>.py

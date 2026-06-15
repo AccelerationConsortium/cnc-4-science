@@ -24,7 +24,14 @@ python -m venv .venv
 pip install cnc-4-science
 
 # 3. Edit cnc_config.yaml in this folder — set your COM port and travel bounds.
-#    (See docs/SETUP.md §0 for how to measure your bounds in Candle.)
+#    Finding the port:
+#      Windows  : Get-CimInstance Win32_SerialPort | Select DeviceID, Name
+#                 (or Device Manager -> Ports (COM & LPT) -> "USB-SERIAL CH340 (COMx)")
+#      macOS    : ls /dev/tty.* | grep -Ei 'usbserial|wchusbserial'
+#      Linux/Pi : ls /dev/ttyUSB* /dev/ttyACM*
+#    Trick: unplug, run the command, plug in, run again — the new entry is the CNC.
+#    Full walkthrough + driver links: docs/SETUP.md §0.
+#    For travel bounds, see docs/SETUP.md §0 (Verify your CNC travel bounds).
 
 # 4. Run
 python hello_cnc.py

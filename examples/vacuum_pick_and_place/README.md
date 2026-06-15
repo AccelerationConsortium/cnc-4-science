@@ -36,7 +36,21 @@ pip install -r requirements.txt
 Edit the two config files in [`tools/`](tools/):
 
 - [`tools/cnc_config.yaml`](tools/cnc_config.yaml) — CNC COM port, travel bounds, Z heights, deck layout.
-- [`tools/vacuum_config.yaml`](tools/vacuum_config.yaml) — vacuum RPM, settle delays, XY offset.
+- [`tools/vacuum_config.yaml`](tools/vacuum_config.yaml) — vacuum RPM, settle delays, XY offset. **No separate port** — the vacuum pump is wired into the GRBL spindle output, so it shares the CNC's serial connection.
+
+> **Finding the CNC COM port.** The GRBL board enumerates as a USB-to-serial
+> device when plugged in. Unplug, list the ports, plug it back in, and list
+> again — the new entry is the CNC.
+>
+> - **Windows**: `Get-CimInstance Win32_SerialPort | Select DeviceID, Name`
+>   in PowerShell, or open Device Manager → *Ports (COM & LPT)* and look
+>   for `USB-SERIAL CH340 (COMx)` / `Silicon Labs CP210x (COMx)`.
+> - **macOS**: `ls /dev/tty.* | grep -Ei 'usbserial|wchusbserial'`. CH340
+>   boards may need the [WCH driver](https://www.wch-ic.com/downloads/CH34XSER_MAC_ZIP.html).
+> - **Linux / Raspberry Pi**: `ls /dev/ttyUSB* /dev/ttyACM*`. Add your user
+>   to the `dialout` group to avoid `sudo`.
+>
+> Full walkthrough + driver links: [docs/SETUP.md §0](../../docs/SETUP.md#finding-the-serial-port-windows--macos--linux).
 
 > Set `virtual: true` in `cnc_config.yaml` to dry-run the protocol without
 > any hardware connected.

@@ -17,7 +17,9 @@ demo. Follow it from top to bottom for any new application.
 ## 0. Prerequisites
 
 - A homed, working Genmitsu CNC (GRBL firmware over USB serial).
-- The COM port / `/dev/tty*` device of the controller.
+- The COM port / `/dev/tty*` device of the controller — see
+  [Finding the serial port](#finding-the-serial-port-windows--macos--linux)
+  below.
 - The physical XY/Z travel envelope of your machine (mm) — see below.
 - Python 3.10+ with `cnc-4-science` installed:
   ```bash
@@ -29,6 +31,67 @@ demo. Follow it from top to bottom for any new application.
   ```
   Edit [examples/hello_cnc/cnc_config.yaml](../examples/hello_cnc/cnc_config.yaml)
   first to match your COM port and travel bounds.
+
+### Finding the serial port (Windows / macOS / Linux)
+
+The GRBL board enumerates as a USB-to-serial device when you plug it in
+(most hobbyist CNCs ship with a CH340 or CP210x chip). You need to identify
+which port belongs to the CNC and put it into the `com_port:` field of
+`cnc_config.yaml` for whichever example you're running:
+
+| Example                                                       | File to edit                                                                                       |
+| ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| [hello_cnc](../examples/hello_cnc/)                           | [`examples/hello_cnc/cnc_config.yaml`](../examples/hello_cnc/cnc_config.yaml)                      |
+| [liquid_handling](../examples/liquid_handling/)               | [`examples/liquid_handling/tools/cnc_config.yaml`](../examples/liquid_handling/tools/cnc_config.yaml) — *and* set `com_port:` in [`tools/picus_config.yaml`](../examples/liquid_handling/tools/picus_config.yaml) for the pipette (separate port) |
+| [vacuum_pick_and_place](../examples/vacuum_pick_and_place/)   | [`examples/vacuum_pick_and_place/tools/cnc_config.yaml`](../examples/vacuum_pick_and_place/tools/cnc_config.yaml) (no separate tool port — the vacuum runs off the GRBL spindle output) |
+
+The reliable trick on any OS is **unplug, list ports, plug in, list again** —
+the new entry is the CNC.
+
+**Windows** (PowerShell):
+
+```powershell
+# List all serial ports with their hardware names
+Get-CimInstance Win32_SerialPort | Select-Object DeviceID, Name, Description
+
+# Or open Device Manager -> "Ports (COM & LPT)" and look for
+# "USB-SERIAL CH340 (COMx)" or "Silicon Labs CP210x (COMx)".
+```
+
+Put the COM string (e.g. `COM4`) into `com_port:`.
+
+**macOS**:
+
+```bash
+# CH340 and CH9102 boards usually show up as /dev/tty.wchusbserial*
+# CP210x boards show up as /dev/tty.usbserial-*
+ls /dev/tty.* | grep -Ei 'usbserial|wchusbserial|usbmodem'
+```
+
+Put the full path (e.g. `/dev/tty.wchusbserial14110`) into `com_port:`.
+You may need to install the [WCH CH34x driver](https://www.wch-ic.com/downloads/CH34XSER_MAC_ZIP.html)
+on macOS for CH340 boards to appear.
+
+**Linux / Raspberry Pi**:
+
+```bash
+ls /dev/ttyUSB* /dev/ttyACM* 2>/dev/null
+# After plugging the CNC in, you can also confirm with:
+dmesg | tail
+# Look for a line like "ch341-uart converter now attached to ttyUSB0".
+```
+
+Put the full path (e.g. `/dev/ttyUSB0`) into `com_port:`. Your user must be
+in the `dialout` group to access it without `sudo`:
+
+```bash
+sudo usermod -aG dialout $USER   # log out / back in to take effect
+```
+
+Only one program can hold the serial port at a time — close Candle / UGS /
+the Arduino Serial Monitor before running any Python script.
+
+---
 
 ### Verify your CNC travel bounds (this is model-specific!)
 

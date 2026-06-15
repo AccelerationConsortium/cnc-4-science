@@ -33,7 +33,23 @@ pip install -r requirements.txt
 Edit the two config files in [`tools/`](tools/):
 
 - [`tools/cnc_config.yaml`](tools/cnc_config.yaml) — CNC COM port, travel bounds, Z heights, deck layout.
-- [`tools/picus_config.yaml`](tools/picus_config.yaml) — Picus COM port, mounting offset, default volumes.
+- [`tools/picus_config.yaml`](tools/picus_config.yaml) — Picus COM port (separate USB device from the CNC), mounting offset, default volumes.
+
+> **Finding the COM ports.** The CNC and the Picus pipette each enumerate as
+> their own USB-to-serial device, so you need two different `com_port:`
+> values. The reliable way to identify which is which is to unplug one of
+> them, list the ports, plug it back in, and list again — the new entry is
+> the device you just plugged in.
+>
+> - **Windows**: `Get-CimInstance Win32_SerialPort | Select DeviceID, Name`
+>   in PowerShell, or open Device Manager → *Ports (COM & LPT)* and look
+>   for `USB-SERIAL CH340 (COMx)` / `Silicon Labs CP210x (COMx)`.
+> - **macOS**: `ls /dev/tty.* | grep -Ei 'usbserial|wchusbserial'`. CH340
+>   boards may need the [WCH driver](https://www.wch-ic.com/downloads/CH34XSER_MAC_ZIP.html).
+> - **Linux / Raspberry Pi**: `ls /dev/ttyUSB* /dev/ttyACM*`. Add your user
+>   to the `dialout` group to avoid `sudo`.
+>
+> Full walkthrough + driver links: [docs/SETUP.md §0](../../docs/SETUP.md#finding-the-serial-port-windows--macos--linux).
 
 > Set `virtual: true` in `cnc_config.yaml` to dry-run the protocol without
 > any hardware connected.
