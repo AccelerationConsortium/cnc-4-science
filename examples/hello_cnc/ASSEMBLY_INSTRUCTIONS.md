@@ -5,7 +5,7 @@ This is what every example builds on top of.
 
 **Target time:** ~1 hour, once parts are in hand.
 
-Source of truth for this BOM is [hello_cnc_bom.csv](hello_cnc_bom.csv).
+Source of truth for this BOM is [hello_CNC_bom.csv](hello_CNC_bom.csv).
 
 ---
 
