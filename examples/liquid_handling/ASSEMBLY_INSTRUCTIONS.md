@@ -35,10 +35,10 @@ slicer, `cad/step/` to remix in CAD).
 | B1 | [`100mm-z-spacer.stl`](cad/stl/100mm-z-spacer.stl) | 2 | Uses M5 hardware to elevate the XZ carriage. |
 | B2 | [`deck-slot-5mm-offset.stl`](cad/stl/deck-slot-5mm-offset.stl) | 1 | Installed in deck slot 1. |
 | B3 | [`deck-slot-standard.stl`](cad/stl/deck-slot-standard.stl) | 3 | Installed in deck slots 2–4. |
-| B4 | [`sartorius_24_tiprack_5000ul.stl`](cad/stl/sartorius_24_tiprack_5000ul.stl) | 2 | Custom 24-tip rack. |
-| B5 | [`sartorius-5000uL-pipette-tool-holder-A.stl`](cad/stl/sartorius-5000uL-pipette-tool-holder-A.stl) | 1 | Two-part toolhead mount that clamps around the pipette. |
-| B6 | [`sartorius-5000uL-pipette-tool-holder-B.stl`](cad/stl/sartorius-5000uL-pipette-tool-holder-B.stl) | 1 | Two-part toolhead mount that clamps around the pipette. |
-| B7 | [`M6_thumb_screw.stl`](cad/stl/M6_thumb_screw.stl) | 8 | For securing labware into deck slots. Any M6 screw works; based on [McMaster 92545A183](https://www.mcmaster.com/92545A183/). |
+| B4 | [`sartorius-24-tiprack-5000ul.stl`](cad/stl/sartorius-24-tiprack-5000ul.stl) | 2 | Custom 24-tip rack. |
+| B5 | [`sartorius-5000ul-pipette-tool-holder-a.stl`](cad/stl/sartorius-5000ul-pipette-tool-holder-a.stl) | 1 | Two-part toolhead mount that clamps around the pipette. |
+| B6 | [`sartorius-5000ul-pipette-tool-holder-b.stl`](cad/stl/sartorius-5000ul-pipette-tool-holder-b.stl) | 1 | Two-part toolhead mount that clamps around the pipette. |
+| B7 | [`m6-thumb-screw.stl`](cad/stl/m6-thumb-screw.stl) | 8 | For securing labware into deck slots. Any M6 screw works; based on [McMaster 92545A183](https://www.mcmaster.com/92545A183/). |
 
 ## Also required
 
