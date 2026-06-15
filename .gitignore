@@ -28,3 +28,7 @@ media/*.webm
 .idea/
 .DS_Store
 
+# Local secrets (PyPI token, etc.) \u2014 never commit
+.pypirc
+.secrets/
+

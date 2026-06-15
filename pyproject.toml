@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cnc-4-science"
-version = "0.9.0"
+version = "0.9.1"
 description = "Control library for Genmitsu CNC machines used as low-cost lab automation platforms (liquid handling, fraction collection, vision-based capping, etc.)."
-readme = "README.md"
+readme = {file = "README_PYPI.md", content-type = "text/markdown"}
 requires-python = ">=3.9"
 license = "GPL-3.0-or-later"
 license-files = ["LICENSE"]

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## 0.9.1 - 2026-06-15
+- **Separate PyPI README.** `pyproject.toml` now points `readme` at a new `README_PYPI.md` — a slim, text-only API summary (`CNC_Machine`, `Deck`, `DeckState`, minimal `cnc_config.yaml`) with a link out to the full GitHub README for hardware/build docs and example projects. The GitHub `README.md` stays as the rich landing page (hero gifs, reference applications, full API reference).
+
 ## 0.9.0 - 2026-06-15
 - **COM-port discovery docs.** Finding the GRBL board's serial port is not self-discoverable, so [docs/SETUP.md §0](docs/SETUP.md#finding-the-serial-port-windows--macos--linux) now has a *Finding the serial port (Windows / macOS / Linux)* subsection: a table mapping each example to the exact `cnc_config.yaml` (and `picus_config.yaml` for liquid_handling) that needs editing, the unplug/list/plug-in identification trick, and per-OS commands (`Get-CimInstance Win32_SerialPort`, `ls /dev/tty.*`, `ls /dev/ttyUSB* /dev/ttyACM*`) plus CH340 driver / `dialout` group notes. Each example README and the root README's Quick start now link to it inline.
 - **README hero**: added side-by-side preview gifs (5\u00d7 speed) at the top of the README for the liquid-handling and pick-and-place examples; each gif links out to the full-length YouTube recording. Renamed the *Reference applications* table column from `Photos / videos` to `Sample workflow video` and linked the same YouTube videos there (`hello_cnc` left blank). Source `media/*.mp4` recordings are too large for git and are hosted on YouTube; `media/*.mp4`/`*.mov`/`*.webm` are now gitignored, only the preview gifs are tracked.
