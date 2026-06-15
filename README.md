@@ -1,7 +1,5 @@
 <h1>cnc-4-science</h1>
 
-Turn a low-cost, hobbyist CNC into a self-driving lab module.
-
 <table>
   <tr>
     <td align="center" width="50%">
