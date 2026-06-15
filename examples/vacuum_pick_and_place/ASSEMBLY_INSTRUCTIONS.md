@@ -41,6 +41,8 @@ slicer, `cad/step/` to remix in CAD).
 | B3 | [`vacuum-gripper-toolhead-mount.stl`](cad/stl/vacuum-gripper-toolhead-mount.stl) | 1 | Toolhead mount. |
 | B4 | [`suction-cup-holder.stl`](cad/stl/suction-cup-holder.stl) | 1 | Screws into the toolhead mount and holds the gripper. |
 | B5 | [`m6-thumb-screw.stl`](cad/stl/m6-thumb-screw.stl) | 4 | For securing labware into deck slots. Any M6 screw works; based on [McMaster 92545A183](https://www.mcmaster.com/92545A183/). |
+| B6 | [`storage-15-tuberack-100ul.stl`](cad/stl/storage-15-tuberack-100ul.stl) | 1 | Storage rack — X / O reservoirs. Mounts in deck slot **3** (back-left). Matches the `storage_15_tuberack_100ul` labware definition. |
+| B7 | [`gameboard-15-tuberack-100ul.stl`](cad/stl/gameboard-15-tuberack-100ul.stl) | 1 | 3×3 play area. Mounts in deck slot **4** (back-right). Matches the `gameboard_15_tuberack_100ul` labware definition. |
 
 ## Also required
 
@@ -64,8 +66,11 @@ or another GRBL UI before the Python library ever touches it.
 ### Stage 2 — Mount the deck
 
 Bolt two `deck-slot-standard.stl` plates (B1) onto the CNC bed with M6×6
-flatheads (A9). One slot holds the storage rack (X / O pieces), one holds the
-game board. Square them against the X / Y axes before final torque.
+flatheads (A9). Use the **back-left** slot (slot 3) for the storage rack
+(B6) and the **back-right** slot (slot 4) for the game board (B7); secure
+each rack with M6 thumb screws (B5). Square them against the X / Y axes
+before final torque. Slot assignment lives in
+[`tools/cnc_config.yaml`](tools/cnc_config.yaml) under `deck.slots:`.
 
 ### Stage 3 — Build the vacuum gripper
 

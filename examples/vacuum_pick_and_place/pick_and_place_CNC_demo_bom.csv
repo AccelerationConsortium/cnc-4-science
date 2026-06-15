@@ -24,6 +24,8 @@ B2,vacuum-pump-mounting-plate.stl,1,mounts vacuum pump onto the CNC moving toolh
 B3,vacuum-gripper-toolhead-mount.stl,1,toolhead mount,,
 B4,suction-cup-holder.stl,1,screws into toolhead mount to hold the gripper,,
 B5,m6-thumb-screw.stl,4,for securing labware into deck slots. any M6 screw will work. This was directly modified/printed from here https://www.mcmaster.com/92545A183/,,
+B6,storage-15-tuberack-100ul.stl,1,storage rack (X / O reservoirs). Mounts in deck slot 3 (back-left). Matches the storage_15_tuberack_100ul labware definition.,,
+B7,gameboard-15-tuberack-100ul.stl,1,3x3 play area. Mounts in deck slot 4 (back-right). Matches the gameboard_15_tuberack_100ul labware definition.,,
 Other Physical Requirements ,,,,,
 A computer (Windows / macOS / Linux) with a USB-A port (or necessary dongle) to connect to the CNC over USB serial.,,,,,
 soldering iron for installing heat set inserts,,,,,

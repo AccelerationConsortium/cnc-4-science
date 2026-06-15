@@ -104,15 +104,15 @@ drives the full game loop, just without any actual motion.
 
 | Slot | Position    | Role       | Labware                              |
 | ---- | ----------- | ---------- | ------------------------------------ |
-| 1    | front-left  | `storage`  | `storage_15_tuberack_100ul`          |
-| 2    | front-right | `gameboard`| `gameboard_15_tuberack_100ul`        |
-| 3    | back-left   | *(empty)*  |                                      |
-| 4    | back-right  | *(empty)*  |                                      |
+| 1    | front-left  | *(empty)*  |                                      |
+| 2    | front-right | *(empty)*  |                                      |
+| 3    | back-left   | `storage`  | `storage_15_tuberack_100ul`          |
+| 4    | back-right  | `gameboard`| `gameboard_15_tuberack_100ul`        |
 
-Storage rack (slot 1): O pieces in columns 1-2, X pieces in columns 4-5
+Storage rack (slot 3): O pieces in columns 1-2, X pieces in columns 4-5
 (see `STORAGE_WELLS` in [game_logic.py](game_logic.py)).
 
-Game board (slot 2): 3×3 play area occupies columns 2-4 of the 15-well rack
+Game board (slot 4): 3×3 play area occupies columns 2-4 of the 15-well rack
 (see `BOARD_WELL_MAP` in [game_logic.py](game_logic.py)).
 
 Slot assignment lives in [tools/cnc_config.yaml](tools/cnc_config.yaml) under
