@@ -37,7 +37,7 @@ pip install cnc-4-science
 
 See [`examples/README.md`](examples/README.md) for the standard 3-step user
 journey every example follows. To bootstrap a brand-new CNC module with an
-LLM coding agent, point it at [`examples/AGENTS.md`](examples/AGENTS.md) \u2014
+LLM coding agent, point it at [`examples/AGENTS.md`](examples/AGENTS.md) --
 it documents the directory layout, config schema, and tool-wrapper contract
 that every example follows.
 
