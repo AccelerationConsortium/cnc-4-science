@@ -29,7 +29,7 @@ that well and do something." Each module is built around a 3-step workflow:
 
 | 1. Install a tool | 2. Configure the deck | 3. Write the workflow in Python |
 | --- | --- | --- |
-| Design and install your instrument on the CNC carriage \u2014 a pipette, a vacuum gripper, a fraction needle, whatever the workflow needs. The mechanical interface is a 3D-printed bracket; the rest is up to the tool. | Decide what labware and external modules sit on the deck and where. Describe it in YAML \u2014 standard SBS plates and tipracks via [Opentrons](https://labware.opentrons.com/#/create) definitions, or open / custom JSON for larger external modules that don't fit the SBS footprint. | Write a Python protocol against `cnc_machine_core` and a thin tool wrapper. The two YAML files (`tools/cnc_config.yaml` + `tools/<tool>_config.yaml`) hold every setup-specific number; the protocol stays portable. |
+| Design and install your instrument on the CNC carriage -- a pipette, a vacuum gripper, a fraction needle, whatever the workflow needs. The mechanical interface is a 3D-printed bracket; the rest is up to the tool. | Decide what labware and external modules sit on the deck and where. Describe it in YAML \u2014 standard SBS plates and tipracks via [Opentrons](https://labware.opentrons.com/#/create) definitions, or open / custom JSON for larger external modules that don't fit the SBS footprint. | Write a Python protocol against `cnc_machine_core` and a thin tool wrapper. The two YAML files (`tools/cnc_config.yaml` + `tools/<tool>_config.yaml`) hold every setup-specific number; the protocol stays portable. |
 
 ```bash
 pip install cnc-4-science
